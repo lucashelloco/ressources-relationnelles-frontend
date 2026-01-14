@@ -18,7 +18,7 @@
             <h2 class="text-2xl font-semibold mb-2">{{ user.prenom }} {{ user.nom }}</h2>
             <p class="text-gray-600 mb-4">
               <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                {{ user.role }}
+                {{ user.role?.nom || 'Utilisateur' }}
               </span>
             </p>
 
@@ -123,20 +123,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
 
+const authStore = useAuthStore()
+const router = useRouter()
 const editMode = ref(false)
 
-// TODO: Récupérer les vraies données depuis l'API
-const user = ref({
-  prenom: 'Marie',
-  nom: 'Lefebvre',
-  email: 'marie.lefebvre@example.com',
-  telephone: '06 12 34 56 78',
-  ville: 'Paris',
-  role: 'Citoyen Connecté',
-  created_at: '2026-01-13T14:26:08.000000Z'
-})
+// Récupérer l'utilisateur depuis le store
+const user = computed(() => authStore.user || {})
 
 const stats = ref({
   ressources: 0,
@@ -145,10 +141,12 @@ const stats = ref({
 })
 
 const userInitials = computed(() => {
+  if (!user.value.prenom || !user.value.nom) return '?'
   return (user.value.prenom[0] + user.value.nom[0]).toUpperCase()
 })
 
 const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
   const date = new Date(dateString)
   return date.toLocaleDateString('fr-FR', { 
     year: 'numeric', 
@@ -156,4 +154,11 @@ const formatDate = (dateString) => {
     day: 'numeric' 
   })
 }
+
+// Rediriger si non connecté
+onMounted(() => {
+  if (!authStore.isAuthenticated) {
+    router.push('/login')
+  }
+})
 </script>
