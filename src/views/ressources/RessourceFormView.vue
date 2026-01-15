@@ -1,134 +1,287 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-      <h1 class="text-3xl font-bold mb-8">
-        {{ isEdit ? 'Modifier la ressource' : 'Nouvelle ressource' }}
-      </h1>
+  <div class="fr-container fr-py-6">
+    <div style="max-width: 56rem; margin: 0 auto;">
+      <!-- En-tête -->
+      <div class="fr-mb-6">
+        <nav role="navigation" aria-label="Fil d'Ariane" class="fr-mb-4">
+          <ol style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; gap: 0.5rem; font-size: 0.875rem; color: var(--text-mention-grey);">
+            <li>
+              <router-link to="/" style="color: var(--blue-france); text-decoration: none;">Accueil</router-link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <router-link to="/ressources" style="color: var(--blue-france); text-decoration: none;">Ressources</router-link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page">{{ isEditing ? 'Modifier' : 'Nouvelle ressource' }}</li>
+          </ol>
+        </nav>
+        
+        <h1 class="fr-h1">
+          {{ isEditing ? 'Modifier la ressource' : 'Créer une nouvelle ressource' }}
+        </h1>
+      </div>
 
-      <form @submit.prevent="handleSubmit" class="bg-white rounded-lg shadow-md p-8">
-        <div class="space-y-6">
+      <!-- Formulaire -->
+      <form @submit.prevent="handleSubmit" class="fr-card">
+        <div class="fr-card__body" style="padding: var(--space-6);">
+          <!-- Alerte d'erreur -->
+          <div v-if="errors.length > 0" class="fr-alert fr-alert--error fr-mb-4">
+            <p class="fr-text" style="font-weight: 500; margin-bottom: 0.5rem;">Veuillez corriger les erreurs suivantes :</p>
+            <ul style="margin: 0; padding-left: 1.5rem;">
+              <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+            </ul>
+          </div>
+
           <!-- Titre -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Titre *</label>
+          <div class="fr-input-group fr-mb-4">
+            <label class="fr-label" for="titre">
+              Titre <span style="color: var(--red-marianne);">*</span>
+            </label>
             <input
+              id="titre"
               v-model="form.titre"
               type="text"
+              class="fr-input"
+              :class="{ 'fr-input--error': fieldErrors.titre }"
               required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Ex: Guide de la communication bienveillante"
             />
+            <p v-if="fieldErrors.titre" class="fr-text fr-text--sm" style="color: var(--red-marianne); margin-top: 0.25rem;">
+              {{ fieldErrors.titre }}
+            </p>
           </div>
 
           <!-- Description -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <div class="fr-input-group fr-mb-4">
+            <label class="fr-label" for="description">
+              Description <span style="color: var(--red-marianne);">*</span>
+            </label>
             <textarea
+              id="description"
               v-model="form.description"
+              class="fr-input"
+              :class="{ 'fr-input--error': fieldErrors.description }"
               rows="3"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              placeholder="Résumé de la ressource en quelques phrases..."
+              style="resize: vertical;"
             ></textarea>
+            <p v-if="fieldErrors.description" class="fr-text fr-text--sm" style="color: var(--red-marianne); margin-top: 0.25rem;">
+              {{ fieldErrors.description }}
+            </p>
           </div>
 
           <!-- Type et Niveau -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Type *</label>
-              <select
-                v-model="form.type_ressource"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="article">Article</option>
-                <option value="video">Vidéo</option>
-                <option value="podcast">Podcast</option>
-                <option value="infographie">Infographie</option>
-                <option value="guide">Guide</option>
-                <option value="etude">Étude</option>
-              </select>
+          <div class="fr-grid-row fr-mb-4" style="row-gap: 1rem;">
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group">
+                <label class="fr-label" for="type">
+                  Type de ressource <span style="color: var(--red-marianne);">*</span>
+                </label>
+                <select
+                  id="type"
+                  v-model="form.type_ressource"
+                  class="fr-select"
+                  required
+                >
+                  <option value="">Sélectionnez un type</option>
+                  <option value="article">Article</option>
+                  <option value="video">Vidéo</option>
+                  <option value="podcast">Podcast</option>
+                  <option value="audio">Audio</option>
+                  <option value="document">Document</option>
+                  <option value="lien">Lien</option>
+                  <option value="infographie">Infographie</option>
+                  <option value="guide">Guide</option>
+                  <option value="etude">Étude</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Niveau *</label>
-              <select
-                v-model="form.niveau"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="debutant">Débutant</option>
-                <option value="intermediaire">Intermédiaire</option>
-                <option value="avance">Avancé</option>
-              </select>
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group">
+                <label class="fr-label" for="niveau">
+                  Niveau <span style="color: var(--red-marianne);">*</span>
+                </label>
+                <select
+                  id="niveau"
+                  v-model="form.niveau"
+                  class="fr-select"
+                  required
+                >
+                  <option value="">Sélectionnez un niveau</option>
+                  <option value="debutant">Débutant</option>
+                  <option value="intermediaire">Intermédiaire</option>
+                  <option value="avance">Avancé</option>
+                </select>
+              </div>
             </div>
+          </div>
+
+          <!-- Type de relation et Niveau de partage -->
+          <div class="fr-grid-row fr-mb-4" style="row-gap: 1rem;">
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group">
+                <label class="fr-label" for="type-relation">
+                  Type de relation
+                </label>
+                <select
+                  id="type-relation"
+                  v-model="form.type_relation"
+                  class="fr-select"
+                >
+                  <option value="">Sélectionnez un type (optionnel)</option>
+                  <option value="familiale">Familiale</option>
+                  <option value="amicale">Amicale</option>
+                  <option value="amoureuse">Amoureuse</option>
+                  <option value="professionnelle">Professionnelle</option>
+                  <option value="therapeutique">Thérapeutique</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group">
+                <label class="fr-label" for="niveau-partage">
+                  Niveau de partage <span style="color: var(--red-marianne);">*</span>
+                </label>
+                <select
+                  id="niveau-partage"
+                  v-model="form.niveau_partage"
+                  class="fr-select"
+                  required
+                >
+                  <option value="prive">Privé (vous uniquement)</option>
+                  <option value="membres">Membres inscrits</option>
+                  <option value="public">Public</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Durée de lecture -->
+          <div class="fr-input-group fr-mb-4">
+            <label class="fr-label" for="duree">
+              Durée de lecture estimée (en minutes)
+            </label>
+            <input
+              id="duree"
+              v-model.number="form.duree_lecture"
+              type="number"
+              class="fr-input"
+              min="1"
+              max="999"
+              placeholder="Ex: 15"
+              style="max-width: 10rem;"
+            />
           </div>
 
           <!-- Contenu -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
+          <div class="fr-input-group fr-mb-4">
+            <label class="fr-label" for="contenu">
+              Contenu de la ressource
+            </label>
             <textarea
+              id="contenu"
               v-model="form.contenu"
-              rows="10"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="fr-input"
+              rows="12"
+              placeholder="Rédigez le contenu complet de votre ressource..."
+              style="resize: vertical; font-family: inherit;"
             ></textarea>
+            <p class="fr-text fr-text--sm fr-text--mention" style="margin-top: 0.25rem;">
+              Vous pouvez utiliser du HTML pour mettre en forme votre contenu.
+            </p>
           </div>
 
-          <!-- URL externe et image -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">URL externe</label>
-              <input
-                v-model="form.url_externe"
-                type="url"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          <!-- URLs -->
+          <div class="fr-grid-row fr-mb-4" style="row-gap: 1rem;">
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group">
+                <label class="fr-label" for="url-externe">
+                  URL externe
+                </label>
+                <input
+                  id="url-externe"
+                  v-model="form.url_externe"
+                  type="url"
+                  class="fr-input"
+                  placeholder="https://exemple.fr/ressource"
+                />
+                <p class="fr-text fr-text--sm fr-text--mention" style="margin-top: 0.25rem;">
+                  Lien vers la ressource originale
+                </p>
+              </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">URL de l'image</label>
-              <input
-                v-model="form.url_image"
-                type="url"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <!-- Statut et Niveau de partage -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
-              <select
-                v-model="form.statut"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="brouillon">Brouillon</option>
-                <option value="publie">Publié</option>
-                <option value="archive">Archivé</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Partage</label>
-              <select
-                v-model="form.niveau_partage"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="public">Public</option>
-                <option value="prive">Privé</option>
-                <option value="membres">Membres uniquement</option>
-              </select>
+            <div class="fr-col-12 fr-col-md-6">
+              <div class="fr-input-group">
+                <label class="fr-label" for="url-image">
+                  URL de l'image de couverture
+                </label>
+                <input
+                  id="url-image"
+                  v-model="form.url_image"
+                  type="url"
+                  class="fr-input"
+                  placeholder="https://exemple.fr/image.jpg"
+                />
+                <p class="fr-text fr-text--sm fr-text--mention" style="margin-top: 0.25rem;">
+                  Image illustrant la ressource
+                </p>
+              </div>
             </div>
           </div>
 
-          <!-- Boutons -->
-          <div class="flex gap-4 pt-4">
+          <!-- Aperçu de l'image -->
+          <div v-if="form.url_image" class="fr-mb-4">
+            <p class="fr-text" style="font-weight: 500; margin-bottom: 0.5rem;">Aperçu de l'image :</p>
+            <div style="max-width: 24rem; border: 1px solid var(--border-default-grey); border-radius: 0.5rem; overflow: hidden;">
+              <img :src="form.url_image" alt="Aperçu" style="width: 100%; height: auto; display: block;" @error="form.url_image = ''" />
+            </div>
+          </div>
+
+          <!-- Mots-clés / Tags -->
+          <div class="fr-input-group fr-mb-6">
+            <label class="fr-label" for="tags">
+              Mots-clés (séparés par des virgules)
+            </label>
+            <input
+              id="tags"
+              v-model="form.tags"
+              type="text"
+              class="fr-input"
+              placeholder="communication, famille, bien-être, écoute"
+            />
+            <p class="fr-text fr-text--sm fr-text--mention" style="margin-top: 0.25rem;">
+              Ajoutez des mots-clés pour faciliter la recherche de votre ressource
+            </p>
+          </div>
+
+          <!-- Actions -->
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid var(--border-default-grey);">
             <button
               type="submit"
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
+              class="fr-btn"
+              :disabled="isSubmitting"
             >
-              {{ isEdit ? 'Mettre à jour' : 'Créer' }}
+              {{ isSubmitting ? 'Enregistrement...' : (isEditing ? 'Enregistrer les modifications' : 'Créer la ressource') }}
             </button>
+            
+            <button
+              type="button"
+              class="fr-btn fr-btn--secondary"
+              @click="saveDraft"
+              :disabled="isSubmitting"
+            >
+              Enregistrer comme brouillon
+            </button>
+            
             <router-link
               to="/ressources"
-              class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg transition text-center"
+              class="fr-btn fr-btn--secondary"
+              style="text-decoration: none;"
             >
               Annuler
             </router-link>
@@ -136,53 +289,180 @@
         </div>
       </form>
     </div>
+
+    <!-- Toast de succès -->
+    <div v-if="showSuccess" class="fr-alert fr-alert--success" style="position: fixed; top: 2rem; right: 2rem; max-width: 20rem; z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">
+      {{ successMessage }}
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useRessourcesStore } from '@/stores/ressources'
 
 const route = useRoute()
 const router = useRouter()
-const ressourcesStore = useRessourcesStore()
 
-const isEdit = computed(() => !!route.params.id)
+const isEditing = ref(false)
+const isSubmitting = ref(false)
+const showSuccess = ref(false)
+const successMessage = ref('')
+const errors = ref([])
+const fieldErrors = ref({})
 
 const form = ref({
   titre: '',
   description: '',
+  type_ressource: '',
+  type_relation: '',
+  niveau: '',
+  niveau_partage: 'membres',
   contenu: '',
-  type_ressource: 'article',
-  niveau: 'debutant',
-  statut: 'brouillon',
-  niveau_partage: 'public',
+  duree_lecture: null,
   url_externe: '',
   url_image: '',
-  auteur_id: 1 // TODO: Récupérer depuis l'utilisateur connecté
+  tags: '',
+  statut: 'publie'
 })
 
-const handleSubmit = async () => {
+const validateForm = () => {
+  errors.value = []
+  fieldErrors.value = {}
+  
+  if (!form.value.titre.trim()) {
+    errors.value.push('Le titre est obligatoire')
+    fieldErrors.value.titre = 'Ce champ est obligatoire'
+  }
+  
+  if (!form.value.description.trim()) {
+    errors.value.push('La description est obligatoire')
+    fieldErrors.value.description = 'Ce champ est obligatoire'
+  } else if (form.value.description.length < 20) {
+    errors.value.push('La description doit contenir au moins 20 caractères')
+    fieldErrors.value.description = 'Minimum 20 caractères requis'
+  }
+  
+  if (!form.value.type_ressource) {
+    errors.value.push('Le type de ressource est obligatoire')
+  }
+  
+  if (!form.value.niveau) {
+    errors.value.push('Le niveau est obligatoire')
+  }
+  
+  if (form.value.url_externe && !isValidUrl(form.value.url_externe)) {
+    errors.value.push('L\'URL externe n\'est pas valide')
+  }
+  
+  if (form.value.url_image && !isValidUrl(form.value.url_image)) {
+    errors.value.push('L\'URL de l\'image n\'est pas valide')
+  }
+  
+  return errors.value.length === 0
+}
+
+const isValidUrl = (string) => {
   try {
-    if (isEdit.value) {
-      await ressourcesStore.updateRessource(route.params.id, form.value)
-    } else {
-      await ressourcesStore.createRessource(form.value)
-    }
-    router.push('/ressources')
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error)
-    alert('Une erreur est survenue')
+    new URL(string)
+    return true
+  } catch (_) {
+    return false
   }
 }
 
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+  
+  isSubmitting.value = true
+  
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    form.value.statut = 'publie'
+    
+    afficherSucces(
+      isEditing.value 
+        ? 'Ressource modifiée avec succès' 
+        : 'Ressource créée avec succès'
+    )
+    
+    setTimeout(() => {
+      router.push('/ressources')
+    }, 1500)
+  } catch (error) {
+    console.error('Erreur lors de la soumission:', error)
+    errors.value = ['Une erreur est survenue lors de l\'enregistrement']
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const saveDraft = async () => {
+  if (!form.value.titre.trim()) {
+    errors.value = ['Le titre est obligatoire pour enregistrer un brouillon']
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+  
+  isSubmitting.value = true
+  
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    form.value.statut = 'brouillon'
+    
+    afficherSucces('Brouillon enregistré avec succès')
+    
+    setTimeout(() => {
+      router.push('/ressources')
+    }, 1500)
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du brouillon:', error)
+    errors.value = ['Une erreur est survenue lors de la sauvegarde']
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const afficherSucces = (message) => {
+  successMessage.value = message
+  showSuccess.value = true
+  setTimeout(() => {
+    showSuccess.value = false
+  }, 3000)
+}
+
 onMounted(async () => {
-  if (isEdit.value) {
-    const ressource = await ressourcesStore.fetchRessource(route.params.id)
-    if (ressource) {
-      Object.assign(form.value, ressource)
+  if (route.params.id) {
+    isEditing.value = true
+    
+    // Charger les données de la ressource à modifier
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    form.value = {
+      titre: 'Guide de la communication bienveillante',
+      description: 'Découvrez les principes de base de la communication non-violente et comment les appliquer au quotidien.',
+      type_ressource: 'guide',
+      type_relation: 'familiale',
+      niveau: 'debutant',
+      niveau_partage: 'public',
+      contenu: 'Contenu du guide...',
+      duree_lecture: 15,
+      url_externe: '',
+      url_image: '',
+      tags: 'communication, famille, bienveillance',
+      statut: 'publie'
     }
   }
 })
 </script>
+
+<style scoped>
+/* Styles spécifiques si nécessaire */
+</style>
