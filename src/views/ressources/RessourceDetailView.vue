@@ -1,214 +1,157 @@
 <template>
   <div class="fr-container fr-py-6">
-    <!-- État de chargement -->
     <div v-if="loading" style="display: flex; justify-content: center; padding: 3rem 0;">
       <div class="fr-spinner" style="width: 3rem; height: 3rem;"></div>
     </div>
 
-    <!-- Contenu de la ressource -->
+    <div v-else-if="error" class="fr-alert fr-alert--error">
+      <h3 class="fr-alert__title">Erreur</h3>
+      <p>{{ error }}</p>
+    </div>
+
     <div v-else-if="ressource" style="max-width: 56rem; margin: 0 auto;">
-      <!-- Fil d'Ariane -->
-      <nav role="navigation" aria-label="Fil d'Ariane" class="fr-mb-4">
-        <ol style="display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; gap: 0.5rem; font-size: 0.875rem; color: var(--text-mention-grey);">
-          <li>
-            <router-link to="/" style="color: var(--blue-france); text-decoration: none;">Accueil</router-link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li>
-            <router-link to="/ressources" style="color: var(--blue-france); text-decoration: none;">Ressources</router-link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page">{{ ressource.titre }}</li>
-        </ol>
-      </nav>
+      <!-- Header -->
+      <div style="margin-bottom: 2rem;">
+        <h1 class="fr-h2" style="margin-bottom: 1rem;">{{ ressource.titre }}</h1>
 
-      <!-- Carte principale -->
-      <article class="fr-card">
-        <!-- Image de couverture -->
-        <div v-if="ressource.url_image" style="width: 100%; height: 24rem; overflow: hidden; background-color: var(--grey-100);">
-          <img 
-            :src="ressource.url_image" 
-            :alt="ressource.titre"
-            style="width: 100%; height: 100%; object-fit: cover;"
-          />
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <span v-for="categorie in ressource.categories" :key="categorie.id" class="fr-badge" :style="`background-color: ${categorie.couleur}20; color: ${categorie.couleur};`">
+            {{ categorie.nom }}
+          </span>
         </div>
-        <div v-else style="width: 100%; height: 24rem; background: linear-gradient(135deg, var(--blue-france) 0%, var(--blue-france-sun-113) 100%);"></div>
 
-        <!-- Contenu -->
-        <div class="fr-card__body" style="padding: var(--space-6);">
-          <!-- Badges -->
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-            <span class="fr-badge fr-badge--info">
-              {{ formatType(ressource.type_ressource) }}
-            </span>
-            <span class="fr-badge fr-badge--success">
-              {{ formatNiveau(ressource.niveau) }}
-            </span>
-            <span v-if="ressource.type_relation" class="fr-badge" style="background-color: #FEE7FC; color: #6E445A;">
-              {{ formatTypeRelation(ressource.type_relation) }}
-            </span>
-            <span v-if="ressource.statut === 'publie'" class="fr-badge" style="background-color: #C3FAE8; color: var(--green-menthe);">
-              Publié
-            </span>
-          </div>
+        <div style="display: flex; gap: 1.5rem; color: var(--text-mention-grey); font-size: 0.875rem; margin-bottom: 1rem;">
+          <span>Par {{ ressource.auteur.prenom }} {{ ressource.auteur.nom }}</span>
+          <span>{{ ressource.nb_vues }} vues</span>
+        </div>
 
-          <!-- Titre -->
-          <h1 class="fr-h1">{{ ressource.titre }}</h1>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <span v-for="tag in ressource.tags" :key="tag.id" class="fr-tag">
+            {{ tag.nom }}
+          </span>
+        </div>
+      </div>
 
-          <!-- Métadonnées -->
-          <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem; color: var(--text-mention-grey);">
-            <span style="display: flex; align-items: center; gap: 0.375rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              {{ ressource.nb_vues || 0 }} vues
-            </span>
-            <span style="display: flex; align-items: center; gap: 0.375rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-              {{ ressource.nb_favoris || 0 }} favoris
-            </span>
-            <span v-if="ressource.duree_lecture" style="display: flex; align-items: center; gap: 0.375rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              {{ ressource.duree_lecture }} min de lecture
-            </span>
-          </div>
+      <!-- Description -->
+      <div class="fr-card fr-p-4" style="margin-bottom: 2rem;">
+        <p style="white-space: pre-wrap;">{{ ressource.description }}</p>
+      </div>
 
-          <!-- Description -->
-          <div class="fr-mb-6">
-            <p class="fr-text fr-text--lg" style="line-height: 1.6;">
-              {{ ressource.description }}
-            </p>
-          </div>
+      <!-- Content -->
+      <div v-if="ressource.contenu" class="fr-card fr-p-4" style="margin-bottom: 3rem;">
+        <div v-html="ressource.contenu" style="white-space: pre-wrap;"></div>
+      </div>
 
-          <!-- Contenu -->
-          <div v-if="ressource.contenu" class="fr-mb-6" style="line-height: 1.8; font-size: 1.0625rem;">
-            <div v-html="ressource.contenu"></div>
-          </div>
+      <!-- Comments Section -->
+      <div style="margin-top: 3rem;">
+        <h2 class="fr-h4" style="margin-bottom: 1.5rem;">
+          Commentaires ({{ commentaires.length }})
+        </h2>
 
-          <!-- Lien externe -->
-          <div v-if="ressource.url_externe" class="fr-mb-6">
-            <a
-              :href="ressource.url_externe"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="fr-btn fr-btn--icon-left"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-              </svg>
-              Voir la ressource externe
-            </a>
-          </div>
-
-          <!-- Actions -->
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <!-- Comment Form -->
+        <div v-if="authStore.isAuthenticated" class="fr-card fr-p-4" style="margin-bottom: 2rem;">
+          <textarea
+            v-model="nouveauCommentaire"
+            class="fr-input"
+            placeholder="Ajouter un commentaire..."
+            rows="3"
+            style="width: 100%; margin-bottom: 1rem;"
+          ></textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
             <button
-              @click="toggleFavori"
-              class="fr-btn"
-              :class="isFavori ? '' : 'fr-btn--secondary'"
-              :style="isFavori ? 'background-color: var(--red-marianne); border-color: var(--red-marianne);' : ''"
+              @click="annulerCommentaire"
+              class="fr-btn fr-btn--secondary"
+              :disabled="!nouveauCommentaire.trim()"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="isFavori ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-              {{ isFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
+              Annuler
             </button>
-            
             <button
-              @click="partager"
+              @click="ajouterCommentaire"
+              class="fr-btn"
+              :disabled="!nouveauCommentaire.trim() || nouveauCommentaire.length < 10"
+            >
+              Publier
+            </button>
+          </div>
+          <p v-if="nouveauCommentaire.length > 0 && nouveauCommentaire.length < 10" class="fr-error-text" style="margin-top: 0.5rem;">
+            Minimum 10 caractères requis
+          </p>
+        </div>
+
+        <div v-else class="fr-card fr-p-4" style="margin-bottom: 2rem; text-align: center;">
+          <p class="fr-text--sm">
+            <router-link to="/login">Connectez-vous</router-link> pour publier un commentaire
+          </p>
+        </div>
+
+        <!-- Comment Form for Reply -->
+        <div v-if="commentaireEnReponse" class="fr-card fr-p-4" style="margin-bottom: 2rem; background-color: #F6F6F6;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <strong>Répondre à {{ commentaireEnReponse.auteur.prenom }} {{ commentaireEnReponse.auteur.nom }}</strong>
+            <button @click="annulerReponse" class="fr-btn fr-btn--sm fr-btn--tertiary-no-outline">✕</button>
+          </div>
+          <textarea
+            v-model="reponseCommentaire"
+            class="fr-input"
+            placeholder="Votre réponse..."
+            rows="3"
+            style="width: 100%; margin-bottom: 1rem;"
+          ></textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button
+              @click="annulerReponse"
               class="fr-btn fr-btn--secondary"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-                <circle cx="18" cy="5" r="3"></circle>
-                <circle cx="6" cy="12" r="3"></circle>
-                <circle cx="18" cy="19" r="3"></circle>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-              </svg>
-              Partager
+              Annuler
+            </button>
+            <button
+              @click="envoyerReponse"
+              class="fr-btn"
+              :disabled="!reponseCommentaire.trim() || reponseCommentaire.length < 10"
+            >
+              Répondre
             </button>
           </div>
         </div>
-      </article>
 
-      <!-- Section commentaires -->
-      <div class="fr-mt-8">
-        <h2 class="fr-h2 fr-mb-4">Commentaires</h2>
-        
-        <!-- Formulaire de commentaire -->
-        <div class="fr-card fr-mb-6">
-          <div class="fr-card__body">
-            <div class="fr-input-group">
-              <label class="fr-label" for="commentaire">Ajouter un commentaire</label>
-              <textarea
-                id="commentaire"
-                v-model="nouveauCommentaire"
-                class="fr-input"
-                rows="4"
-                placeholder="Partagez votre avis, vos questions..."
-                style="resize: vertical;"
-              ></textarea>
-            </div>
-            <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
-              <button
-                @click="ajouterCommentaire"
-                class="fr-btn"
-                :disabled="!nouveauCommentaire.trim()"
-              >
-                Publier
-              </button>
-            </div>
-          </div>
+        <!-- Comments List -->
+        <div v-if="commentaires.length > 0" style="display: flex; flex-direction: column; gap: 1rem;">
+          <CommentaireItem
+            v-for="commentaire in commentaires"
+            :key="commentaire.id"
+            :commentaire="commentaire"
+            :user-id="authStore.user?.id"
+            @modifier="ouvrirModification"
+            @supprimer="supprimerCommentaire"
+            @repondre="repondreCommentaire"
+          />
         </div>
 
-        <!-- Liste des commentaires -->
-        <div v-if="commentaires.length === 0" class="fr-text fr-text--mention" style="text-align: center; padding: 2rem 0;">
-          Aucun commentaire pour le moment. Soyez le premier à partager votre avis !
+        <div v-else style="text-align: center; padding: 2rem; color: var(--text-mention-grey);">
+          <p>Aucun commentaire pour le moment. Soyez le premier à commenter!</p>
         </div>
-        
-        <div v-else style="display: flex; flex-direction: column; gap: 1rem;">
-          <div v-for="commentaire in commentaires" :key="commentaire.id" class="fr-card">
-            <div class="fr-card__body">
-              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                <div>
-                  <strong class="fr-text">{{ commentaire.auteur }}</strong>
-                  <span class="fr-text fr-text--sm fr-text--mention" style="margin-left: 0.5rem;">
-                    {{ commentaire.date }}
-                  </span>
-                </div>
-                <span v-if="commentaire.statut === 'approuve'" class="fr-badge fr-badge--success" style="font-size: 0.625rem;">
-                  Approuvé
-                </span>
-              </div>
-              <p class="fr-text">{{ commentaire.contenu }}</p>
-              <div style="margin-top: 0.75rem; display: flex; gap: 1rem; align-items: center;">
-                <button
-                  @click="likeCommentaire(commentaire.id)"
-                  style="display: flex; align-items: center; gap: 0.25rem; background: none; border: none; cursor: pointer; color: var(--text-mention-grey); font-size: 0.875rem;"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                  </svg>
-                  {{ commentaire.nb_likes || 0 }}
-                </button>
-              </div>
-            </div>
+      </div>
+
+      <!-- Edit Comment Modal -->
+      <div v-if="commentaireEnModification" class="fr-modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; max-width: 600px; width: 90%;">
+          <h3>Modifier le commentaire</h3>
+          <textarea
+            v-model="commentaireModifie"
+            class="fr-input"
+            rows="4"
+            style="width: 100%; margin: 1rem 0;"
+          ></textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button @click="annulerModification" class="fr-btn fr-btn--secondary">Annuler</button>
+            <button @click="sauvegarderModification" class="fr-btn" :disabled="commentaireModifie.length < 10">Sauvegarder</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Message d'alerte si succès -->
-    <div v-if="showAlert" class="fr-alert fr-alert--success" style="position: fixed; top: 2rem; right: 2rem; max-width: 20rem; z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">
-      {{ alertMessage }}
+    <div v-else class="fr-alert fr-alert--warning">
+      <p>Ressource non trouvée</p>
     </div>
   </div>
 </template>
@@ -216,175 +159,134 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useRessourceStore } from '@/stores/ressourceStore'
+import { useAuthStore } from '@/stores/authStore'
+import commentaireService from '@/services/commentaireService'
+import CommentaireItem from '@/components/commentaires/CommentaireItem.vue'
 
 const route = useRoute()
+const ressourceStore = useRessourceStore()
+const authStore = useAuthStore()
 const loading = ref(true)
 const ressource = ref(null)
-const isFavori = ref(false)
 const commentaires = ref([])
+const error = ref(null)
+
+// Comment form
 const nouveauCommentaire = ref('')
-const showAlert = ref(false)
-const alertMessage = ref('')
+const reponseCommentaire = ref('')
+const commentaireEnReponse = ref(null)
 
-const formatType = (type) => {
-  const types = {
-    article: 'Article',
-    video: 'Vidéo',
-    podcast: 'Podcast',
-    audio: 'Audio',
-    document: 'Document',
-    lien: 'Lien',
-    infographie: 'Infographie',
-    guide: 'Guide',
-    etude: 'Étude'
+// Edit comment
+const commentaireEnModification = ref(null)
+const commentaireModifie = ref('')
+
+const chargerCommentaires = async () => {
+  try {
+    const response = await commentaireService.getCommentaires(route.params.id)
+    commentaires.value = response.data || response
+  } catch (err) {
+    console.error('Error loading comments:', err)
   }
-  return types[type] || type
 }
 
-const formatNiveau = (niveau) => {
-  const niveaux = {
-    debutant: 'Débutant',
-    intermediaire: 'Intermédiaire',
-    avance: 'Avancé'
-  }
-  return niveaux[niveau] || niveau
-}
+const ajouterCommentaire = async () => {
+  if (!nouveauCommentaire.value.trim() || nouveauCommentaire.value.length < 10) return
 
-const formatTypeRelation = (type) => {
-  const types = {
-    familiale: 'Relation familiale',
-    amicale: 'Relation amicale',
-    amoureuse: 'Relation amoureuse',
-    professionnelle: 'Relation professionnelle',
-    therapeutique: 'Relation thérapeutique'
-  }
-  return types[type] || type
-}
-
-const toggleFavori = () => {
-  isFavori.value = !isFavori.value
-  afficherAlert(isFavori.value ? 'Ajouté aux favoris' : 'Retiré des favoris')
-}
-
-const partager = () => {
-  if (navigator.share) {
-    navigator.share({
-      title: ressource.value.titre,
-      text: ressource.value.description,
-      url: window.location.href
+  try {
+    await commentaireService.creerCommentaire(route.params.id, {
+      contenu: nouveauCommentaire.value
     })
-  } else {
-    navigator.clipboard.writeText(window.location.href)
-    afficherAlert('Lien copié dans le presse-papier')
+    nouveauCommentaire.value = ''
+    alert('Commentaire envoyé. Il sera visible après modération.')
+    await chargerCommentaires()
+  } catch (err) {
+    console.error('Error creating comment:', err)
+    alert('Erreur lors de la publication du commentaire')
   }
 }
 
-const ajouterCommentaire = () => {
-  if (!nouveauCommentaire.value.trim()) return
-  
-  commentaires.value.unshift({
-    id: Date.now(),
-    auteur: 'Vous',
-    date: 'À l\'instant',
-    contenu: nouveauCommentaire.value,
-    statut: 'en_attente',
-    nb_likes: 0
-  })
-  
+const annulerCommentaire = () => {
   nouveauCommentaire.value = ''
-  afficherAlert('Commentaire publié avec succès')
 }
 
-const likeCommentaire = (id) => {
-  const commentaire = commentaires.value.find(c => c.id === id)
-  if (commentaire) {
-    commentaire.nb_likes = (commentaire.nb_likes || 0) + 1
+const repondreCommentaire = (commentaire) => {
+  commentaireEnReponse.value = commentaire
+  reponseCommentaire.value = ''
+}
+
+const annulerReponse = () => {
+  commentaireEnReponse.value = null
+  reponseCommentaire.value = ''
+}
+
+const envoyerReponse = async () => {
+  if (!reponseCommentaire.value.trim() || reponseCommentaire.value.length < 10) return
+
+  try {
+    await commentaireService.creerCommentaire(route.params.id, {
+      contenu: reponseCommentaire.value,
+      parent_id: commentaireEnReponse.value.id
+    })
+    annulerReponse()
+    alert('Réponse envoyée. Elle sera visible après modération.')
+    await chargerCommentaires()
+  } catch (err) {
+    console.error('Error creating reply:', err)
+    alert('Erreur lors de la publication de la réponse')
   }
 }
 
-const afficherAlert = (message) => {
-  alertMessage.value = message
-  showAlert.value = true
-  setTimeout(() => {
-    showAlert.value = false
-  }, 3000)
+const ouvrirModification = (commentaire) => {
+  commentaireEnModification.value = commentaire
+  commentaireModifie.value = commentaire.contenu
+}
+
+const annulerModification = () => {
+  commentaireEnModification.value = null
+  commentaireModifie.value = ''
+}
+
+const sauvegarderModification = async () => {
+  if (commentaireModifie.value.length < 10) return
+
+  try {
+    await commentaireService.modifierCommentaire(
+      route.params.id,
+      commentaireEnModification.value.id,
+      { contenu: commentaireModifie.value }
+    )
+    annulerModification()
+    alert('Commentaire modifié avec succès')
+    await chargerCommentaires()
+  } catch (err) {
+    console.error('Error updating comment:', err)
+    alert('Erreur lors de la modification du commentaire')
+  }
+}
+
+const supprimerCommentaire = async (commentaireId) => {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) return
+
+  try {
+    await commentaireService.supprimerCommentaire(route.params.id, commentaireId)
+    alert('Commentaire supprimé avec succès')
+    await chargerCommentaires()
+  } catch (err) {
+    console.error('Error deleting comment:', err)
+    alert('Erreur lors de la suppression du commentaire')
+  }
 }
 
 onMounted(async () => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // Données d'exemple
-    ressource.value = {
-      id: route.params.id,
-      titre: 'Guide de la communication bienveillante',
-      description: 'Découvrez les principes de base de la communication non-violente et comment les appliquer au quotidien dans vos relations.',
-      contenu: `
-        <h3>Introduction</h3>
-        <p>La communication bienveillante, également appelée Communication Non-Violente (CNV), est une approche développée par Marshall Rosenberg. Elle vise à créer des liens authentiques et à résoudre les conflits de manière constructive.</p>
-        
-        <h3>Les 4 étapes de la CNV</h3>
-        <p><strong>1. Observer sans juger</strong><br>Décrivez les faits de manière objective, sans interprétation ni jugement.</p>
-        <p><strong>2. Identifier ses sentiments</strong><br>Exprimez ce que vous ressentez face à la situation.</p>
-        <p><strong>3. Exprimer ses besoins</strong><br>Identifiez les besoins sous-jacents à vos sentiments.</p>
-        <p><strong>4. Formuler une demande claire</strong><br>Proposez une action concrète qui pourrait satisfaire vos besoins.</p>
-        
-        <h3>Mise en pratique</h3>
-        <p>La pratique régulière de la CNV permet de développer une écoute empathique et de créer des relations plus authentiques et satisfaisantes.</p>
-      `,
-      type_ressource: 'guide',
-      type_relation: 'familiale',
-      niveau: 'debutant',
-      statut: 'publie',
-      nb_vues: 1245,
-      nb_favoris: 89,
-      duree_lecture: 15,
-      url_image: null,
-      url_externe: null
-    }
-    
-    commentaires.value = [
-      {
-        id: 1,
-        auteur: 'Marie Dupont',
-        date: 'Il y a 2 jours',
-        contenu: 'Excellent guide ! J\'ai pu appliquer ces principes avec mes enfants et cela a vraiment amélioré notre communication.',
-        statut: 'approuve',
-        nb_likes: 12
-      },
-      {
-        id: 2,
-        auteur: 'Jean Martin',
-        date: 'Il y a 1 semaine',
-        contenu: 'Merci pour ces explications claires. Les 4 étapes sont faciles à mémoriser et à mettre en pratique.',
-        statut: 'approuve',
-        nb_likes: 8
-      }
-    ]
-  } catch (error) {
-    console.error('Erreur lors du chargement de la ressource:', error)
+    ressource.value = await ressourceStore.fetchRessourceById(route.params.id)
+    await chargerCommentaires()
+  } catch (err) {
+    console.error('Error loading ressource:', err)
+    error.value = err.message || 'Une erreur est survenue'
   } finally {
     loading.value = false
   }
 })
 </script>
-
-<style scoped>
-/* Styles spécifiques pour le contenu HTML */
-:deep(h3) {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: var(--text-default-grey);
-}
-
-:deep(p) {
-  margin-bottom: 1rem;
-}
-
-:deep(strong) {
-  font-weight: 600;
-  color: var(--blue-france);
-}
-</style>

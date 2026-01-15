@@ -41,14 +41,6 @@ export const ressourceService = {
   async publier(id) {
     const response = await api.post(`/ressources/${id}/publier`)
     return response.data
-  },
-
-  // Recherche full-text
-  async search(query, filters = {}) {
-    const response = await api.get('/ressources', {
-      params: { search: query, ...filters }
-    })
-    return response.data
   }
 }
 

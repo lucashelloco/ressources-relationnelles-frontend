@@ -105,33 +105,13 @@ export const useRessourceStore = defineStore('ressource', () => {
       const data = await ressourceService.toggleFavoris(id)
       // Mettre à jour le compteur de favoris dans la liste
       const ressource = ressources.value.find(r => r.id === id)
-      if (ressource) {
-        ressource.nb_favoris = data.data.nb_favoris || ressource.nb_favoris
+      if (ressource && data.data) {
+        ressource.nb_favoris = data.data.nb_favoris
       }
       return data
     } catch (err) {
       console.error(err)
       throw err
-    }
-  }
-
-  async function searchRessources(query, filters = {}) {
-    loading.value = true
-    error.value = null
-    try {
-      const data = await ressourceService.search(query, filters)
-      ressources.value = data.data.data
-      pagination.value = {
-        current_page: data.data.current_page,
-        last_page: data.data.last_page,
-        per_page: data.data.per_page,
-        total: data.data.total
-      }
-    } catch (err) {
-      error.value = err.response?.data?.message || 'Erreur lors de la recherche'
-      console.error(err)
-    } finally {
-      loading.value = false
     }
   }
 
@@ -146,7 +126,6 @@ export const useRessourceStore = defineStore('ressource', () => {
     createRessource,
     updateRessource,
     deleteRessource,
-    toggleFavoris,
-    searchRessources
+    toggleFavoris
   }
 })

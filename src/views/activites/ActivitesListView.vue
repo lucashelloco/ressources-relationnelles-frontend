@@ -252,9 +252,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { formatTypeActivite, formatStatutActivite } from '@/utils/formatters'
 
-const router = useRouter()
 const loading = ref(true)
 const activites = ref([])
 const ongletActif = ref('tous')
@@ -290,26 +289,8 @@ const activitesFiltrees = computed(() => {
   })
 })
 
-const formatType = (type) => {
-  const types = {
-    discussion: 'Discussion',
-    evenement: 'Événement',
-    atelier: 'Atelier',
-    groupe_echange: 'Groupe d\'échange',
-    conference: 'Conférence'
-  }
-  return types[type] || type
-}
-
-const formatStatut = (statut) => {
-  const statuts = {
-    a_venir: 'À venir',
-    en_cours: 'En cours',
-    termine: 'Terminé',
-    annule: 'Annulé'
-  }
-  return statuts[statut] || statut
-}
+const formatType = formatTypeActivite
+const formatStatut = formatStatutActivite
 
 const formatDate = (dateStr) => {
   const date = new Date(dateStr)

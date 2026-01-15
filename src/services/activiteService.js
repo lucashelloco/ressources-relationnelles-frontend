@@ -47,18 +47,6 @@ export const activiteService = {
   async getParticipants(id) {
     const response = await api.get(`/activites/${id}/participants`)
     return response.data
-  },
-
-  // Messages de l'activité
-  async getMessages(id) {
-    const response = await api.get(`/activites/${id}/messages`)
-    return response.data
-  },
-
-  // Envoyer un message
-  async sendMessage(id, message) {
-    const response = await api.post(`/activites/${id}/messages`, { contenu: message })
-    return response.data
   }
 }
 
