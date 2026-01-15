@@ -86,15 +86,9 @@
                   required
                 >
                   <option value="">Sélectionnez un type</option>
-                  <option value="article">Article</option>
-                  <option value="video">Vidéo</option>
-                  <option value="podcast">Podcast</option>
-                  <option value="audio">Audio</option>
-                  <option value="document">Document</option>
-                  <option value="lien">Lien</option>
-                  <option value="infographie">Infographie</option>
-                  <option value="guide">Guide</option>
-                  <option value="etude">Étude</option>
+                  <option v-for="type in typesRessource" :key="type.value" :value="type.value">
+                    {{ type.label }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -111,9 +105,9 @@
                   required
                 >
                   <option value="">Sélectionnez un niveau</option>
-                  <option value="debutant">Débutant</option>
-                  <option value="intermediaire">Intermédiaire</option>
-                  <option value="avance">Avancé</option>
+                  <option v-for="niveau in niveaux" :key="niveau.value" :value="niveau.value">
+                    {{ niveau.label }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -132,11 +126,9 @@
                   class="fr-select"
                 >
                   <option value="">Sélectionnez un type (optionnel)</option>
-                  <option value="familiale">Familiale</option>
-                  <option value="amicale">Amicale</option>
-                  <option value="amoureuse">Amoureuse</option>
-                  <option value="professionnelle">Professionnelle</option>
-                  <option value="therapeutique">Thérapeutique</option>
+                  <option v-for="type in typesRelation" :key="type.value" :value="type.value">
+                    {{ type.label }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -152,9 +144,9 @@
                   class="fr-select"
                   required
                 >
-                  <option value="prive">Privé (vous uniquement)</option>
-                  <option value="membres">Membres inscrits</option>
-                  <option value="public">Public</option>
+                  <option v-for="niveau in niveauxPartage" :key="niveau.value" :value="niveau.value">
+                    {{ niveau.label }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -298,11 +290,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useConfigStore } from '@/stores/configStore'
 
 const route = useRoute()
 const router = useRouter()
+const configStore = useConfigStore()
 
 const isEditing = ref(false)
 const isSubmitting = ref(false)
@@ -310,6 +304,12 @@ const showSuccess = ref(false)
 const successMessage = ref('')
 const errors = ref([])
 const fieldErrors = ref({})
+
+// Options depuis l'API
+const typesRessource = computed(() => configStore.typesRessource())
+const typesRelation = computed(() => configStore.typesRelation())
+const niveaux = computed(() => configStore.niveaux())
+const niveauxPartage = computed(() => configStore.niveauxPartage())
 
 const form = ref({
   titre: '',
@@ -439,26 +439,12 @@ const afficherSucces = (message) => {
 }
 
 onMounted(async () => {
+  // Charger la configuration
+  await configStore.fetchConfig()
+
   if (route.params.id) {
     isEditing.value = true
-    
-    // Charger les données de la ressource à modifier
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    form.value = {
-      titre: 'Guide de la communication bienveillante',
-      description: 'Découvrez les principes de base de la communication non-violente et comment les appliquer au quotidien.',
-      type_ressource: 'guide',
-      type_relation: 'familiale',
-      niveau: 'debutant',
-      niveau_partage: 'public',
-      contenu: 'Contenu du guide...',
-      duree_lecture: 15,
-      url_externe: '',
-      url_image: '',
-      tags: 'communication, famille, bienveillance',
-      statut: 'publie'
-    }
+    // TODO: Charger la ressource depuis l'API
   }
 })
 </script>
