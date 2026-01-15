@@ -1,39 +1,39 @@
 <template>
   <nav class="bg-white border-b-4 border-bleu-france sticky top-0 z-50 shadow-sm">
     <div class="container-dsfr">
-      <div class="flex justify-between items-center h-16 md:h-20">
+      <div class="flex justify-between items-center h-20">
         <!-- Logo DSFR -->
         <div class="flex items-center">
-          <RouterLink to="/" class="flex items-center space-x-2 md:space-x-3 no-underline">
-            <div class="w-10 h-10 md:w-14 md:h-14 bg-bleu-france rounded-lg flex items-center justify-center shadow-md">
-              <span class="text-white font-bold text-lg md:text-2xl font-marianne">RE</span>
+          <RouterLink to="/" class="flex items-center space-x-3 no-underline">
+            <div class="w-14 h-14 bg-bleu-france rounded-lg flex items-center justify-center shadow-md">
+              <span class="text-white font-bold text-2xl font-marianne">RE</span>
             </div>
-            <span class="text-sm md:text-xl font-bold text-bleu-france font-marianne hidden sm:block">
+            <span class="text-xl font-bold text-bleu-france font-marianne hidden sm:block">
               (RE)SOURCES RELATIONNELLES
             </span>
           </RouterLink>
         </div>
 
-        <!-- Navigation desktop -->
+        <!-- Navigation principale -->
         <div class="hidden md:flex items-center space-x-8">
           <RouterLink 
             to="/ressources" 
-            class="text-gris-neutre hover:text-bleu-france transition-colors font-medium no-underline py-2"
-            :class="{ 'text-bleu-france font-semibold border-b-2 border-bleu-france': $route.path.startsWith('/ressources') }"
+            class="nav-link"
+            active-class="nav-link-active"
           >
             Ressources
           </RouterLink>
           <RouterLink 
             to="/activites" 
-            class="text-gris-neutre hover:text-bleu-france transition-colors font-medium no-underline py-2"
-            :class="{ 'text-bleu-france font-semibold border-b-2 border-bleu-france': $route.path.startsWith('/activites') }"
+            class="nav-link"
+            active-class="nav-link-active"
           >
             Activités
           </RouterLink>
         </div>
 
-        <!-- Menu utilisateur desktop -->
-        <div class="hidden md:flex items-center space-x-4">
+        <!-- Menu utilisateur -->
+        <div class="flex items-center space-x-4">
           <template v-if="authStore.isAuthenticated">
             <!-- Notifications -->
             <button 
@@ -45,6 +45,23 @@
               </svg>
               <span v-if="hasNotifications" class="absolute top-1 right-1 w-2.5 h-2.5 bg-rouge-marianne rounded-full"></span>
             </button>
+
+            <!-- Dropdown notifications -->
+            <div 
+              v-if="showNotifications"
+              v-click-outside="() => showNotifications = false"
+              class="absolute right-0 mt-2 w-80 bg-white rounded-dsfr shadow-lg border border-gris-clair py-2 z-50"
+              style="top: 4.5rem;"
+            >
+              <div class="px-4 py-2 border-b border-gris-clair">
+                <h3 class="text-sm font-semibold text-bleu-france">Notifications</h3>
+              </div>
+              <div class="max-h-96 overflow-y-auto">
+                <div class="px-4 py-3 text-sm text-gris-neutre text-center">
+                  Aucune notification
+                </div>
+              </div>
+            </div>
 
             <!-- Menu dropdown utilisateur -->
             <div class="relative">
@@ -126,141 +143,16 @@
           <template v-else>
             <RouterLink 
               to="/login" 
-              class="text-gris-neutre hover:text-bleu-france transition-colors font-medium no-underline"
+              class="nav-link"
             >
               Connexion
             </RouterLink>
             <RouterLink 
               to="/register" 
-              class="btn btn-primary text-sm px-4 py-2"
+              class="btn btn-primary text-sm"
             >
               S'inscrire
             </RouterLink>
-          </template>
-        </div>
-
-        <!-- Bouton menu mobile -->
-        <div class="flex md:hidden items-center space-x-2">
-          <template v-if="authStore.isAuthenticated">
-            <!-- Avatar mobile -->
-            <button 
-              @click="showMobileMenu = !showMobileMenu"
-              class="w-10 h-10 bg-bleu-france bg-opacity-10 rounded-full flex items-center justify-center border-2 border-bleu-france"
-            >
-              <span class="text-bleu-france font-semibold text-sm font-marianne">
-                {{ authStore.user?.prenom?.[0] }}{{ authStore.user?.nom?.[0] }}
-              </span>
-            </button>
-          </template>
-          
-          <!-- Hamburger menu -->
-          <button 
-            @click="showMobileMenu = !showMobileMenu"
-            class="p-2 text-gris-neutre hover:text-bleu-france transition-colors"
-          >
-            <svg v-if="!showMobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Menu mobile -->
-      <div 
-        v-if="showMobileMenu"
-        class="md:hidden border-t border-gris-clair bg-white"
-      >
-        <div class="px-4 py-2 space-y-2">
-          <RouterLink 
-            to="/ressources" 
-            class="block py-3 text-gris-neutre hover:text-bleu-france font-medium no-underline"
-            :class="{ 'text-bleu-france font-semibold': $route.path.startsWith('/ressources') }"
-            @click="showMobileMenu = false"
-          >
-            📚 Ressources
-          </RouterLink>
-          <RouterLink 
-            to="/activites" 
-            class="block py-3 text-gris-neutre hover:text-bleu-france font-medium no-underline"
-            :class="{ 'text-bleu-france font-semibold': $route.path.startsWith('/activites') }"
-            @click="showMobileMenu = false"
-          >
-            📅 Activités
-          </RouterLink>
-
-          <template v-if="authStore.isAuthenticated">
-            <div class="border-t border-gris-clair my-2 pt-2">
-              <p class="text-xs text-gris-neutre mb-2 font-semibold">Mon compte</p>
-              <RouterLink 
-                to="/profil" 
-                class="block py-2 text-gris-neutre hover:text-bleu-france no-underline"
-                @click="showMobileMenu = false"
-              >
-                👤 Mon profil
-              </RouterLink>
-              <RouterLink 
-                to="/user/mes-ressources" 
-                class="block py-2 text-gris-neutre hover:text-bleu-france no-underline"
-                @click="showMobileMenu = false"
-              >
-                📚 Mes ressources
-              </RouterLink>
-              <RouterLink 
-                to="/user/mes-favoris" 
-                class="block py-2 text-gris-neutre hover:text-bleu-france no-underline"
-                @click="showMobileMenu = false"
-              >
-                ❤️ Mes favoris
-              </RouterLink>
-              <RouterLink 
-                to="/user/mes-activites" 
-                class="block py-2 text-gris-neutre hover:text-bleu-france no-underline"
-                @click="showMobileMenu = false"
-              >
-                📅 Mes activités
-              </RouterLink>
-            </div>
-            
-            <div v-if="authStore.isAdmin" class="border-t border-gris-clair my-2 pt-2">
-              <RouterLink 
-                to="/admin" 
-                class="block py-2 text-gris-neutre hover:text-bleu-france no-underline"
-                @click="showMobileMenu = false"
-              >
-                ⚙️ Administration
-              </RouterLink>
-            </div>
-            
-            <div class="border-t border-gris-clair my-2 pt-2">
-              <button 
-                @click="handleLogout"
-                class="block w-full text-left py-2 text-rouge-marianne font-medium"
-              >
-                🚪 Déconnexion
-              </button>
-            </div>
-          </template>
-
-          <template v-else>
-            <div class="border-t border-gris-clair my-2 pt-2 space-y-2">
-              <RouterLink 
-                to="/login" 
-                class="block py-2 text-gris-neutre hover:text-bleu-france font-medium no-underline"
-                @click="showMobileMenu = false"
-              >
-                Connexion
-              </RouterLink>
-              <RouterLink 
-                to="/register" 
-                class="block btn btn-primary text-center"
-                @click="showMobileMenu = false"
-              >
-                S'inscrire
-              </RouterLink>
-            </div>
           </template>
         </div>
       </div>
@@ -277,12 +169,10 @@ const router = useRouter()
 const authStore = useAuthStore()
 const showUserMenu = ref(false)
 const showNotifications = ref(false)
-const showMobileMenu = ref(false)
-const hasNotifications = ref(false)
+const hasNotifications = ref(false) // TODO: lier avec l'API
 
 const handleLogout = async () => {
   showUserMenu.value = false
-  showMobileMenu.value = false
   await authStore.logout()
   router.push('/')
 }

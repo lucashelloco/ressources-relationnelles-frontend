@@ -1,87 +1,230 @@
 <template>
   <div>
     <!-- Hero Section -->
-    <section class="bg-gradient-to-br from-primary-500 to-secondary-600 text-white py-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-5xl font-bold mb-6">
-          (RE)SOURCES RELATIONNELLES
-        </h1>
-        <p class="text-xl mb-8 text-primary-50">
-          Améliorez vos relations grâce à des ressources et des activités dédiées
-        </p>
-        <div class="flex justify-center space-x-4">
-          <RouterLink to="/ressources" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
-            Explorer les ressources
-          </RouterLink>
-          <RouterLink to="/activites" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors">
-            Voir les activités
-          </RouterLink>
-        </div>
-      </div>
-    </section>
-
-    <!-- Types de relations -->
-    <section class="py-16 bg-gray-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-center mb-12">Types de relations</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div 
-            v-for="type in typesRelations" 
-            :key="type.id"
-            class="card text-center hover:shadow-lg transition-shadow cursor-pointer"
-            @click="goToRessources(type.value)"
-          >
-            <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    <section style="background: linear-gradient(135deg, var(--blue-france) 0%, var(--blue-france-sun-113) 100%); color: white;">
+      <div class="fr-container" style="padding-top: 4rem; padding-bottom: 4rem;">
+        <div class="fr-grid-row" style="align-items: center; row-gap: 2rem;">
+          <div class="fr-col-12 fr-col-md-6">
+            <h1 style="font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 1.5rem; color: white;">
+              Ressources Relationnelles
+            </h1>
+            <p style="font-size: 1.25rem; line-height: 1.6; margin-bottom: 2rem; color: rgba(255,255,255,0.95);">
+              Plateforme collaborative de partage et d'apprentissage pour améliorer vos relations personnelles et professionnelles.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <router-link 
+                to="/ressources" 
+                class="fr-btn"
+                style="background-color: white; color: var(--blue-france); border-color: white;"
+              >
+                Découvrir les ressources
+              </router-link>
+              <router-link 
+                to="/ressources/new" 
+                class="fr-btn fr-btn--secondary"
+                style="border-color: white; color: white;"
+              >
+                Partager une ressource
+              </router-link>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-md-6 fr-hidden-mobile">
+            <div style="background: rgba(255,255,255,0.1); border-radius: 1rem; padding: 3rem; backdrop-filter: blur(10px);">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="width: 100%; height: auto;">
+                <circle cx="200" cy="150" r="100" fill="rgba(255,255,255,0.2)" />
+                <circle cx="150" cy="120" r="60" fill="rgba(255,255,255,0.3)" />
+                <circle cx="250" cy="180" r="70" fill="rgba(255,255,255,0.25)" />
+                <circle cx="200" cy="150" r="40" fill="white" />
               </svg>
             </div>
-            <h3 class="text-xl font-semibold mb-2">{{ type.label }}</h3>
-            <p class="text-gray-600">{{ type.description }}</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Ressources récentes -->
-    <section class="py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold">Ressources récentes</h2>
-          <RouterLink to="/ressources" class="text-primary-600 hover:text-primary-700 font-semibold">
-            Voir tout →
-          </RouterLink>
-        </div>
-
-        <div v-if="loading" class="text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
-        </div>
-
-        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <RessourceCard 
-            v-for="ressource in recentRessources" 
-            :key="ressource.id"
-            :ressource="ressource"
-          />
+    <!-- Statistiques -->
+    <section style="background-color: var(--background-alt-grey); padding: 3rem 0;">
+      <div class="fr-container">
+        <div class="fr-grid-row" style="row-gap: 2rem;">
+          <div class="fr-col-12 fr-col-sm-6 fr-col-md-3" style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: 700; color: var(--blue-france); margin-bottom: 0.5rem;">
+              {{ stats.ressources }}+
+            </div>
+            <div class="fr-text fr-text--lg fr-text--mention">
+              Ressources disponibles
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-sm-6 fr-col-md-3" style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: 700; color: var(--blue-france); margin-bottom: 0.5rem;">
+              {{ stats.utilisateurs }}+
+            </div>
+            <div class="fr-text fr-text--lg fr-text--mention">
+              Membres actifs
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-sm-6 fr-col-md-3" style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: 700; color: var(--blue-france); margin-bottom: 0.5rem;">
+              {{ stats.activites }}+
+            </div>
+            <div class="fr-text fr-text--lg fr-text--mention">
+              Activités organisées
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-sm-6 fr-col-md-3" style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: 700; color: var(--blue-france); margin-bottom: 0.5rem;">
+              {{ stats.commentaires }}+
+            </div>
+            <div class="fr-text fr-text--lg fr-text--mention">
+              Échanges partagés
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="bg-primary-600 text-white py-16">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-bold mb-4">Prêt à améliorer vos relations ?</h2>
-        <p class="text-xl mb-8 text-primary-50">
-          Rejoignez notre communauté et accédez à des centaines de ressources
-        </p>
-        <RouterLink 
-          v-if="!authStore.isAuthenticated"
-          to="/register" 
-          class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors inline-block"
+    <!-- Catégories principales -->
+    <section class="fr-container fr-py-8">
+      <h2 class="fr-h2" style="text-align: center; margin-bottom: 3rem;">
+        Explorez par thématique
+      </h2>
+      <div class="fr-grid-row" style="row-gap: 1.5rem;">
+        <div
+          v-for="categorie in categories"
+          :key="categorie.id"
+          class="fr-col-12 fr-col-sm-6 fr-col-md-4"
         >
-          Créer un compte gratuitement
-        </RouterLink>
+          <article 
+            class="fr-card"
+            style="cursor: pointer; height: 100%; transition: transform 0.2s ease;"
+            @click="naviguerCategorie(categorie.slug)"
+            @mouseenter="(e) => e.currentTarget.style.transform = 'translateY(-4px)'"
+            @mouseleave="(e) => e.currentTarget.style.transform = 'translateY(0)'"
+          >
+            <div class="fr-card__body">
+              <div 
+                style="width: 4rem; height: 4rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 2rem;"
+                :style="{ backgroundColor: categorie.couleur + '20', color: categorie.couleur }"
+              >
+                {{ categorie.icone }}
+              </div>
+              <h3 class="fr-card__title">
+                {{ categorie.nom }}
+              </h3>
+              <p class="fr-card__desc">
+                {{ categorie.description }}
+              </p>
+              <div class="fr-badge fr-badge--info" style="margin-top: 0.75rem;">
+                {{ categorie.nb_ressources }} ressources
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ressources récentes -->
+    <section style="background-color: var(--background-alt-grey);">
+      <div class="fr-container fr-py-8">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+          <h2 class="fr-h2" style="margin: 0;">
+            Ressources récentes
+          </h2>
+          <router-link to="/ressources" class="fr-btn fr-btn--secondary">
+            Voir toutes les ressources
+          </router-link>
+        </div>
+        
+        <div v-if="loadingRessources" style="display: flex; justify-content: center; padding: 3rem 0;">
+          <div class="fr-spinner"></div>
+        </div>
+        
+        <div v-else class="fr-grid-row" style="row-gap: 1.5rem;">
+          <div
+            v-for="ressource in ressourcesRecentes"
+            :key="ressource.id"
+            class="fr-col-12 fr-col-md-6 fr-col-lg-4"
+          >
+            <article 
+              class="fr-card"
+              style="cursor: pointer; height: 100%;"
+              @click="$router.push(`/ressources/${ressource.id}`)"
+            >
+              <div v-if="ressource.url_image" style="position: relative;">
+                <img 
+                  :src="ressource.url_image" 
+                  :alt="ressource.titre"
+                  class="fr-card__img"
+                />
+              </div>
+              <div v-else style="height: 12rem; background: linear-gradient(135deg, var(--blue-france) 0%, var(--blue-france-sun-113) 100%);"></div>
+              
+              <div class="fr-card__body">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                  <span class="fr-badge fr-badge--info">
+                    {{ formatType(ressource.type_ressource) }}
+                  </span>
+                  <span class="fr-badge fr-badge--success">
+                    {{ formatNiveau(ressource.niveau) }}
+                  </span>
+                </div>
+                
+                <h3 class="fr-card__title">
+                  {{ ressource.titre }}
+                </h3>
+                
+                <p class="fr-card__desc" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                  {{ ressource.description }}
+                </p>
+              </div>
+              
+              <div class="fr-card__footer">
+                <span class="fr-text fr-text--sm" style="display: flex; align-items: center; gap: 0.25rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  {{ ressource.nb_vues || 0 }}
+                </span>
+                <span class="fr-text fr-text--sm" style="display: flex; align-items: center; gap: 0.25rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                  {{ ressource.nb_favoris || 0 }}
+                </span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Appel à l'action -->
+    <section class="fr-container fr-py-8">
+      <div class="fr-card" style="background: linear-gradient(135deg, var(--blue-france) 0%, var(--blue-france-sun-113) 100%); border: none; color: white;">
+        <div class="fr-card__body" style="padding: 3rem; text-align: center;">
+          <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: white;">
+            Rejoignez notre communauté
+          </h2>
+          <p style="font-size: 1.125rem; margin-bottom: 2rem; max-width: 40rem; margin-left: auto; margin-right: auto; color: rgba(255,255,255,0.95);">
+            Partagez vos connaissances, apprenez des autres et participez à la construction d'une plateforme dédiée aux relations humaines.
+          </p>
+          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <router-link 
+              to="/inscription" 
+              class="fr-btn"
+              style="background-color: white; color: var(--blue-france); border-color: white;"
+            >
+              Créer un compte
+            </router-link>
+            <router-link 
+              to="/connexion" 
+              class="fr-btn fr-btn--secondary"
+              style="border-color: white; color: white;"
+            >
+              Se connecter
+            </router-link>
+          </div>
+        </div>
       </div>
     </section>
   </div>
@@ -90,69 +233,178 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'
-import { useRessourceStore } from '@/stores/ressourceStore'
-import RessourceCard from '@/components/ressources/RessourceCard.vue'
 
 const router = useRouter()
-const authStore = useAuthStore()
-const ressourceStore = useRessourceStore()
+const loadingRessources = ref(true)
 
-const loading = ref(false)
-const recentRessources = ref([])
+const stats = ref({
+  ressources: 0,
+  utilisateurs: 0,
+  activites: 0,
+  commentaires: 0
+})
 
-const typesRelations = [
-  {
-    id: 1,
-    value: 'familiale',
-    label: 'Relations familiales',
-    description: 'Parents, enfants, fratrie...'
-  },
-  {
-    id: 2,
-    value: 'amicale',
-    label: 'Relations amicales',
-    description: 'Amitiés, camaraderie...'
-  },
-  {
-    id: 3,
-    value: 'amoureuse',
-    label: 'Relations amoureuses',
-    description: 'Couple, intimité...'
-  },
-  {
-    id: 4,
-    value: 'professionnelle',
-    label: 'Relations professionnelles',
-    description: 'Collègues, hiérarchie...'
-  },
-  {
-    id: 5,
-    value: 'therapeutique',
-    label: 'Relations thérapeutiques',
-    description: 'Accompagnement, soin...'
-  },
-  {
-    id: 6,
-    value: 'autre',
-    label: 'Autres relations',
-    description: 'Toutes les autres formes'
+const categories = ref([])
+const ressourcesRecentes = ref([])
+
+const formatType = (type) => {
+  const types = {
+    article: 'Article',
+    video: 'Vidéo',
+    podcast: 'Podcast',
+    guide: 'Guide'
   }
-]
+  return types[type] || type
+}
 
-const goToRessources = (typeRelation) => {
-  router.push({ name: 'ressources', query: { type_relation: typeRelation } })
+const formatNiveau = (niveau) => {
+  const niveaux = {
+    debutant: 'Débutant',
+    intermediaire: 'Intermédiaire',
+    avance: 'Avancé'
+  }
+  return niveaux[niveau] || niveau
+}
+
+const naviguerCategorie = (slug) => {
+  router.push(`/ressources?categorie=${slug}`)
+}
+
+const animerCompteurs = () => {
+  const targets = {
+    ressources: 150,
+    utilisateurs: 320,
+    activites: 45,
+    commentaires: 890
+  }
+  
+  const duration = 2000
+  const steps = 60
+  const interval = duration / steps
+  
+  Object.keys(targets).forEach(key => {
+    const target = targets[key]
+    const increment = target / steps
+    let current = 0
+    
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= target) {
+        stats.value[key] = target
+        clearInterval(timer)
+      } else {
+        stats.value[key] = Math.floor(current)
+      }
+    }, interval)
+  })
 }
 
 onMounted(async () => {
-  loading.value = true
   try {
-    await ressourceStore.fetchRessources({ per_page: 6, order_by: 'date_publication', order: 'desc' })
-    recentRessources.value = ressourceStore.ressources.slice(0, 6)
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    // Animer les compteurs
+    animerCompteurs()
+    
+    // Charger les catégories
+    categories.value = [
+      {
+        id: 1,
+        nom: 'Communication',
+        slug: 'communication',
+        description: 'Améliorer ses compétences en communication verbale et non-verbale',
+        icone: '💬',
+        couleur: '#000091',
+        nb_ressources: 42
+      },
+      {
+        id: 2,
+        nom: 'Écoute active',
+        slug: 'ecoute-active',
+        description: 'Techniques et pratiques pour développer son écoute',
+        icone: '👂',
+        couleur: '#009081',
+        nb_ressources: 28
+      },
+      {
+        id: 3,
+        nom: 'Gestion des conflits',
+        slug: 'gestion-conflits',
+        description: 'Résoudre et prévenir les situations conflictuelles',
+        icone: '⚖️',
+        couleur: '#E4794A',
+        nb_ressources: 35
+      },
+      {
+        id: 4,
+        nom: 'Relations familiales',
+        slug: 'relations-familiales',
+        description: 'Renforcer les liens familiaux et intergénérationnels',
+        icone: '👨‍👩‍👧‍👦',
+        couleur: '#B7A73F',
+        nb_ressources: 31
+      },
+      {
+        id: 5,
+        nom: 'Relations professionnelles',
+        slug: 'relations-professionnelles',
+        description: 'Améliorer ses interactions en milieu professionnel',
+        icone: '💼',
+        couleur: '#465F9D',
+        nb_ressources: 45
+      },
+      {
+        id: 6,
+        nom: 'Développement personnel',
+        slug: 'developpement-personnel',
+        description: 'Travail sur soi et croissance personnelle',
+        icone: '🌱',
+        couleur: '#009099',
+        nb_ressources: 38
+      }
+    ]
+    
+    // Charger les ressources récentes
+    ressourcesRecentes.value = [
+      {
+        id: 1,
+        titre: 'Guide de la communication bienveillante',
+        description: 'Découvrez les principes de base de la communication non-violente et comment les appliquer au quotidien.',
+        type_ressource: 'guide',
+        niveau: 'debutant',
+        nb_vues: 1245,
+        nb_favoris: 89,
+        url_image: null
+      },
+      {
+        id: 2,
+        titre: 'Les bases de l\'écoute active',
+        description: 'Apprenez à vraiment écouter l\'autre et à créer un espace de dialogue authentique.',
+        type_ressource: 'article',
+        niveau: 'debutant',
+        nb_vues: 892,
+        nb_favoris: 45,
+        url_image: null
+      },
+      {
+        id: 3,
+        titre: 'Gérer les conflits familiaux',
+        description: 'Stratégies avancées pour désamorcer les tensions et trouver des solutions constructives.',
+        type_ressource: 'video',
+        niveau: 'intermediaire',
+        nb_vues: 2150,
+        nb_favoris: 156,
+        url_image: null
+      }
+    ]
   } catch (error) {
-    console.error('Erreur lors du chargement des ressources:', error)
+    console.error('Erreur lors du chargement:', error)
   } finally {
-    loading.value = false
+    loadingRessources.value = false
   }
 })
 </script>
+
+<style scoped>
+/* Styles spécifiques */
+</style>
