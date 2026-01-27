@@ -1,12 +1,14 @@
 <template>
   <div id="app" class="min-h-screen flex flex-col">
     <NavBar />
-    
+
     <main class="flex-grow">
       <RouterView />
     </main>
-    
+
     <Footer />
+
+    <ToastContainer />
   </div>
 </template>
 
@@ -15,6 +17,7 @@ import { onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import NavBar from '@/components/layout/NavBar.vue'
 import Footer from '@/components/layout/Footer.vue'
+import ToastContainer from '@/components/common/ToastContainer.vue'
 
 const authStore = useAuthStore()
 

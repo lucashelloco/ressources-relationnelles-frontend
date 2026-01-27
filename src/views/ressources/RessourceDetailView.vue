@@ -42,11 +42,62 @@
         <div v-html="ressource.contenu" style="white-space: pre-wrap;"></div>
       </div>
 
-      <!-- Comments Section -->
+      <!-- Tabs for Discussions and Comments -->
       <div style="margin-top: 3rem;">
-        <h2 class="fr-h4" style="margin-bottom: 1.5rem;">
-          Commentaires ({{ commentaires.length }})
-        </h2>
+        <div class="fr-tabs">
+          <ul class="fr-tabs__list" role="tablist">
+            <li role="presentation">
+              <button
+                class="fr-tabs__tab"
+                :class="{ 'fr-tabs__tab--active': activeTab === 'discussions' }"
+                @click="activeTab = 'discussions'"
+                role="tab"
+              >
+                Discussions
+              </button>
+            </li>
+            <li role="presentation">
+              <button
+                class="fr-tabs__tab"
+                :class="{ 'fr-tabs__tab--active': activeTab === 'commentaires' }"
+                @click="activeTab = 'commentaires'"
+                role="tab"
+              >
+                Commentaires ({{ commentaires.length }})
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Discussions Tab -->
+        <div v-show="activeTab === 'discussions'" class="fr-tabs__panel" style="margin-top: 2rem;">
+          <div v-if="!selectedDiscussionId">
+            <DiscussionList
+              :ressource-id="ressource.id"
+              @discussion-selected="handleDiscussionSelected"
+            />
+          </div>
+          <div v-else>
+            <button
+              @click="selectedDiscussionId = null"
+              class="fr-btn fr-btn--secondary fr-btn--sm"
+              style="margin-bottom: 1rem;"
+            >
+              ← Retour aux discussions
+            </button>
+            <DiscussionRoom
+              :ressource-id="ressource.id"
+              :discussion-id="selectedDiscussionId"
+              @deleted="handleDiscussionDeleted"
+            />
+          </div>
+        </div>
+
+        <!-- Comments Tab -->
+        <div v-show="activeTab === 'commentaires'" class="fr-tabs__panel" style="margin-top: 2rem;">
+          <h2 class="fr-h4" style="margin-bottom: 1.5rem;">
+            Commentaires ({{ commentaires.length }})
+          </h2>
 
         <!-- Comment Form -->
         <div v-if="authStore.isAuthenticated" class="fr-card fr-p-4" style="margin-bottom: 2rem;">
@@ -148,6 +199,23 @@
           </div>
         </div>
       </div>
+
+      <!-- Delete Comment Modal -->
+      <div v-if="showDeleteModal" class="fr-modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+          <h3>Supprimer le commentaire</h3>
+          <p style="margin: 1rem 0;">Êtes-vous sûr de vouloir supprimer ce commentaire ? Cette action est irréversible.</p>
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
+            <button @click="showDeleteModal = false; commentaireASupprimer = null" class="fr-btn fr-btn--secondary">Annuler</button>
+            <button @click="confirmerSuppression" class="fr-btn" style="background-color: var(--error);">
+              Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- End Comments Tab -->
+      </div>
+      <!-- End Tabs -->
     </div>
 
     <div v-else class="fr-alert fr-alert--warning">
@@ -161,16 +229,30 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRessourceStore } from '@/stores/ressourceStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useToast } from '@/composables/useToast'
 import commentaireService from '@/services/commentaireService'
 import CommentaireItem from '@/components/commentaires/CommentaireItem.vue'
+import DiscussionList from '@/components/discussions/DiscussionList.vue'
+import DiscussionRoom from '@/components/discussions/DiscussionRoom.vue'
 
 const route = useRoute()
 const ressourceStore = useRessourceStore()
 const authStore = useAuthStore()
+const toast = useToast()
 const loading = ref(true)
 const ressource = ref(null)
 const commentaires = ref([])
 const error = ref(null)
+
+// Tabs
+const activeTab = ref('discussions')
+const selectedDiscussionId = ref(null)
+
+// Check if we should open a specific discussion from URL query param
+if (route.query.discussion) {
+  selectedDiscussionId.value = parseInt(route.query.discussion)
+  activeTab.value = 'discussions'
+}
 
 // Comment form
 const nouveauCommentaire = ref('')
@@ -180,6 +262,19 @@ const commentaireEnReponse = ref(null)
 // Edit comment
 const commentaireEnModification = ref(null)
 const commentaireModifie = ref('')
+
+// Delete comment
+const commentaireASupprimer = ref(null)
+const showDeleteModal = ref(false)
+
+// Discussion handlers
+const handleDiscussionSelected = (discussionId) => {
+  selectedDiscussionId.value = discussionId
+}
+
+const handleDiscussionDeleted = () => {
+  selectedDiscussionId.value = null
+}
 
 const chargerCommentaires = async () => {
   try {
@@ -198,11 +293,11 @@ const ajouterCommentaire = async () => {
       contenu: nouveauCommentaire.value
     })
     nouveauCommentaire.value = ''
-    alert('Commentaire envoyé. Il sera visible après modération.')
+    toast.success('Commentaire envoyé. Il sera visible après modération.')
     await chargerCommentaires()
   } catch (err) {
     console.error('Error creating comment:', err)
-    alert('Erreur lors de la publication du commentaire')
+    toast.error('Erreur lors de la publication du commentaire')
   }
 }
 
@@ -229,11 +324,11 @@ const envoyerReponse = async () => {
       parent_id: commentaireEnReponse.value.id
     })
     annulerReponse()
-    alert('Réponse envoyée. Elle sera visible après modération.')
+    toast.success('Réponse envoyée. Elle sera visible après modération.')
     await chargerCommentaires()
   } catch (err) {
     console.error('Error creating reply:', err)
-    alert('Erreur lors de la publication de la réponse')
+    toast.error('Erreur lors de la publication de la réponse')
   }
 }
 
@@ -257,24 +352,31 @@ const sauvegarderModification = async () => {
       { contenu: commentaireModifie.value }
     )
     annulerModification()
-    alert('Commentaire modifié avec succès')
+    toast.success('Commentaire modifié avec succès')
     await chargerCommentaires()
   } catch (err) {
     console.error('Error updating comment:', err)
-    alert('Erreur lors de la modification du commentaire')
+    toast.error('Erreur lors de la modification du commentaire')
   }
 }
 
-const supprimerCommentaire = async (commentaireId) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) return
+const supprimerCommentaire = (commentaireId) => {
+  commentaireASupprimer.value = commentaireId
+  showDeleteModal.value = true
+}
+
+const confirmerSuppression = async () => {
+  if (!commentaireASupprimer.value) return
 
   try {
-    await commentaireService.supprimerCommentaire(route.params.id, commentaireId)
-    alert('Commentaire supprimé avec succès')
+    await commentaireService.supprimerCommentaire(route.params.id, commentaireASupprimer.value)
+    toast.success('Commentaire supprimé avec succès')
+    showDeleteModal.value = false
+    commentaireASupprimer.value = null
     await chargerCommentaires()
   } catch (err) {
     console.error('Error deleting comment:', err)
-    alert('Erreur lors de la suppression du commentaire')
+    toast.error('Erreur lors de la suppression du commentaire')
   }
 }
 

@@ -81,7 +81,7 @@
               Rejeter
             </button>
             <button
-              @click="approuverCommentaire(commentaire.id)"
+              @click="ouvrirModalApprobation(commentaire)"
               class="fr-btn"
             >
               Approuver
@@ -121,6 +121,26 @@
       </div>
     </div>
 
+    <!-- Approve Modal -->
+    <div v-if="commentaireAApprouver" class="fr-modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+      <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; max-width: 600px; width: 90%;">
+        <h3>Approuver le commentaire</h3>
+        <p style="margin: 1rem 0;">Êtes-vous sûr de vouloir approuver ce commentaire ?</p>
+        <div style="padding: 1rem; background-color: #F6F6F6; border-radius: 4px; margin-bottom: 1.5rem;">
+          <p style="margin: 0; white-space: pre-wrap;">{{ commentaireAApprouver.contenu }}</p>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button @click="fermerModalApprobation" class="fr-btn fr-btn--secondary">Annuler</button>
+          <button
+            @click="confirmerApprobation"
+            class="fr-btn"
+          >
+            Confirmer l'approbation
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Reject Modal -->
     <div v-if="commentaireARejeter" class="fr-modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
       <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; max-width: 600px; width: 90%;">
@@ -136,24 +156,29 @@
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
           <button @click="fermerModalRejet" class="fr-btn fr-btn--secondary">Annuler</button>
           <button
-            @click="rejeterCommentaire"
+            @click="confirmerRejet"
             class="fr-btn"
-            :disabled="!raisonRejet.trim()"
+            :disabled="!raisonRejet.trim() || rejetEnCours"
           >
-            Confirmer le rejet
+            {{ rejetEnCours ? 'Rejet en cours...' : 'Confirmer le rejet' }}
           </button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useToast } from '@/composables/useToast'
 import api from '@/services/api'
 import statsService from '@/services/statsService'
 
-const activeTab = ref('moderation')
+const route = useRoute()
+const toast = useToast()
+const activeTab = ref(route.query.tab || 'moderation')
 const loading = ref(true)
 const commentairesEnAttente = ref([])
 const stats = ref({
@@ -163,9 +188,11 @@ const stats = ref({
   commentaires: 0
 })
 
-// Reject modal
+// Modals
+const commentaireAApprouver = ref(null)
 const commentaireARejeter = ref(null)
 const raisonRejet = ref('')
+const rejetEnCours = ref(false)
 
 const chargerCommentairesEnAttente = async () => {
   loading.value = true
@@ -174,7 +201,7 @@ const chargerCommentairesEnAttente = async () => {
     commentairesEnAttente.value = response.data.data
   } catch (error) {
     console.error('Error loading pending comments:', error)
-    alert('Erreur lors du chargement des commentaires')
+    toast.error('Erreur lors du chargement des commentaires')
   } finally {
     loading.value = false
   }
@@ -189,19 +216,31 @@ const chargerStats = async () => {
   }
 }
 
-const approuverCommentaire = async (commentaireId) => {
-  if (!confirm('Approuver ce commentaire ?')) return
+// Approval modal functions
+const ouvrirModalApprobation = (commentaire) => {
+  commentaireAApprouver.value = commentaire
+}
+
+const fermerModalApprobation = () => {
+  commentaireAApprouver.value = null
+}
+
+const confirmerApprobation = async () => {
+  if (!commentaireAApprouver.value) return
 
   try {
-    await api.post(`/commentaires/${commentaireId}/approuver`)
-    alert('Commentaire approuvé avec succès')
+    await api.post(`/commentaires/${commentaireAApprouver.value.id}/approuver`)
+    toast.success('Commentaire approuvé avec succès')
+    fermerModalApprobation()
     await chargerCommentairesEnAttente()
   } catch (error) {
     console.error('Error approving comment:', error)
-    alert('Erreur lors de l\'approbation du commentaire')
+    toast.error('Erreur lors de l\'approbation du commentaire')
+    fermerModalApprobation()
   }
 }
 
+// Reject modal functions
 const ouvrirModalRejet = (commentaire) => {
   commentaireARejeter.value = commentaire
   raisonRejet.value = ''
@@ -210,21 +249,25 @@ const ouvrirModalRejet = (commentaire) => {
 const fermerModalRejet = () => {
   commentaireARejeter.value = null
   raisonRejet.value = ''
+  rejetEnCours.value = false
 }
 
-const rejeterCommentaire = async () => {
-  if (!raisonRejet.value.trim()) return
+const confirmerRejet = async () => {
+  if (!raisonRejet.value.trim() || rejetEnCours.value) return
 
+  rejetEnCours.value = true
   try {
     await api.post(`/commentaires/${commentaireARejeter.value.id}/rejeter`, {
       raison: raisonRejet.value
     })
-    alert('Commentaire rejeté avec succès')
+    toast.success('Commentaire rejeté avec succès')
     fermerModalRejet()
     await chargerCommentairesEnAttente()
   } catch (error) {
     console.error('Error rejecting comment:', error)
-    alert('Erreur lors du rejet du commentaire')
+    toast.error('Erreur lors du rejet du commentaire')
+  } finally {
+    rejetEnCours.value = false
   }
 }
 
