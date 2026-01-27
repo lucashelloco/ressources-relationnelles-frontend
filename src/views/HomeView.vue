@@ -10,16 +10,16 @@
           <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.95;">
             Améliorez vos relations grâce à des ressources expertes et une communauté bienveillante
           </p>
-          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <router-link 
-              to="/inscription" 
+          <div v-if="!authStore?.isAuthenticated" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <router-link
+              to="/inscription"
               class="fr-btn"
               style="background-color: white; color: var(--blue-france); border-color: white;"
             >
               Créer un compte
             </router-link>
-            <router-link 
-              to="/connexion" 
+            <router-link
+              to="/connexion"
               class="fr-btn fr-btn--secondary"
               style="border-color: white; color: white;"
             >
@@ -191,7 +191,7 @@
     </section>
 
     <!-- CTA Final -->
-    <section style="background: linear-gradient(135deg, var(--blue-france) 0%, var(--blue-france-sun-113) 100%); color: white; padding: 4rem 0; text-align: center;">
+    <section v-if="!authStore?.isAuthenticated" style="background: linear-gradient(135deg, var(--blue-france) 0%, var(--blue-france-sun-113) 100%); color: white; padding: 4rem 0; text-align: center;">
       <div class="fr-container">
         <div style="max-width: 700px; margin: 0 auto;">
           <h2 class="fr-h2" style="color: white; margin-bottom: 1.5rem;">
@@ -201,8 +201,8 @@
             Rejoignez notre communauté et accédez à des centaines de ressources
           </p>
           <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <router-link 
-              to="/inscription" 
+            <router-link
+              to="/inscription"
               class="fr-btn"
               style="background-color: white; color: var(--blue-france); border-color: white;"
             >
@@ -218,12 +218,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 import { useCategorieStore } from '@/stores/categorieStore'
 import { useRessourceStore } from '@/stores/ressourceStore'
 import { formatType, formatNiveau } from '@/utils/formatters'
 import statsService from '@/services/statsService'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const categorieStore = useCategorieStore()
 const ressourceStore = useRessourceStore()
 

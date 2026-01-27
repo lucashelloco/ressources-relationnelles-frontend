@@ -84,6 +84,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/mes-discussions',
+      name: 'mes-discussions',
+      component: () => import('@/views/user/MesDiscussions.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('@/views/admin/AdminDashboard.vue'),
