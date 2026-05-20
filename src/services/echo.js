@@ -9,10 +9,12 @@ const echo = new Echo({
   cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
   forceTLS: true,
   encrypted: true,
-  authEndpoint: `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/broadcasting/auth`,
+  // L'auth broadcasting est sur /broadcasting/auth, pas sous /api/v1/
+  authEndpoint: 'http://localhost:8000/broadcasting/auth',
   auth: {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      // Clé correcte — authService stocke sous 'auth_token'
+      Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
       Accept: 'application/json',
     }
   }
