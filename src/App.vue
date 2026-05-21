@@ -1,13 +1,10 @@
 <template>
-  <div id="app" class="min-h-screen flex flex-col">
+  <div id="app" style="min-height:100vh;display:flex;flex-direction:column;background:#fff;">
     <NavBar />
-
-    <main class="flex-grow">
+    <main class="flex-grow page-content">
       <RouterView />
     </main>
-
     <Footer />
-
     <ToastContainer />
   </div>
 </template>
@@ -22,15 +19,8 @@ import ToastContainer from '@/components/common/ToastContainer.vue'
 const authStore = useAuthStore()
 
 onMounted(() => {
-  // Charger l'utilisateur si un token existe
   if (authStore.isAuthenticated) {
     authStore.fetchUser()
   }
 })
 </script>
-
-<style scoped>
-#app {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-</style>

@@ -1,10 +1,10 @@
 /**
- * Design Système de la République Française (DSFR)
- * Couleurs officielles et système responsive
+ * DSFR — variables remappées vers la palette dark/indigo
+ * (cohérence avec le dashboard admin)
  */
 
 :root {
-  /* Couleurs principales DSFR */
+  /* Couleurs principales DSFR — République Française */
   --blue-france: #000091;
   --blue-france-sun-113: #6A6AF4;
   --blue-france-main-525: #000091;
@@ -36,20 +36,24 @@
   /* Erreur */
   --orange-terre-battue: #E4794A;
   
-  /* Texte */
+  /* Texte — DSFR officiel */
   --text-default-grey: #161616;
   --text-mention-grey: #666666;
   --text-disabled-grey: #929292;
   --text-inverted-grey: #FFFFFF;
-  
-  /* Bordures */
+
+  /* Bordures — DSFR */
   --border-default-grey: #DDDDDD;
   --border-plain-grey: #CECECE;
-  
-  /* Arrière-plans */
+
+  /* Arrière-plans — DSFR */
   --background-default-grey: #FFFFFF;
-  --background-alt-grey: #F6F6F6;
+  --background-alt-grey: #F5F5F5;
   --background-contrast-grey: #E5E5E5;
+
+  /* Aliases compatibilité */
+  --grey-1000-50: #F5F5F5;
+  --grey-950-100: #E5E5E5;
   
   /* Espacements DSFR */
   --space-1: 0.25rem;  /* 4px */
@@ -83,6 +87,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Cards — fond blanc DSFR */
+.fr-card, .fr-tile { background: var(--background-default-grey); }
 
 /* Conteneur responsive */
 .fr-container {

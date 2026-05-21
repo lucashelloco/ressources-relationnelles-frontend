@@ -1,97 +1,83 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full">
-      <div class="card">
-        <!-- Header -->
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <span class="text-white font-bold text-2xl">RR</span>
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900">Connexion</h2>
-          <p class="mt-2 text-gray-600">
-            Connectez-vous pour accéder à votre compte
-          </p>
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;background:#F5F5F5;">
+    <div style="width:100%;max-width:400px;">
+
+      <!-- Logo -->
+      <div style="text-align:center;margin-bottom:2rem;">
+        <div style="width:52px;height:52px;background:#000091;border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+          <span style="color:#fff;font-weight:800;font-size:1.1rem;">RE</span>
         </div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#161616;margin:0 0 .375rem;">Connexion</h1>
+        <p style="color:#666666;font-size:.85rem;margin:0;">Accédez à votre compte</p>
+      </div>
+
+      <!-- Card -->
+      <div style="background:#FFFFFF;border:1px solid #DDDDDD;border-radius:4px;padding:1.75rem;box-shadow:0 2px 8px rgba(0,0,0,.06);">
 
         <!-- Erreur -->
-        <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-red-800 text-sm">{{ error }}</p>
+        <div v-if="error" style="background:#FFE9E9;border:1px solid #E1000F;border-left-width:4px;border-radius:3px;padding:.75rem 1rem;margin-bottom:1.25rem;">
+          <p style="margin:0;color:#C9191E;font-size:.8rem;">{{ error }}</p>
         </div>
 
-        <!-- Formulaire -->
-        <form @submit.prevent="handleLogin" class="space-y-6">
+        <form @submit.prevent="handleLogin" style="display:flex;flex-direction:column;gap:1rem;">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label style="display:block;color:#161616;font-size:.875rem;font-weight:500;margin-bottom:.375rem;">Email</label>
             <input
-              id="email"
               v-model="form.email"
               type="email"
               required
-              class="input-field"
+              class="input-dsfr"
               placeholder="votre@email.com"
             />
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-              Mot de passe
-            </label>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.375rem;">
+              <label style="color:#161616;font-size:.875rem;font-weight:500;">Mot de passe</label>
+              <a href="#" style="font-size:.75rem;color:#000091;text-decoration:none;" @mouseover="e=>e.target.style.color='#1212FF'" @mouseleave="e=>e.target.style.color='#000091'">Mot de passe oublié ?</a>
+            </div>
             <input
-              id="password"
               v-model="form.mot_de_passe"
               type="password"
               required
-              class="input-field"
+              class="input-dsfr"
               placeholder="••••••••"
             />
           </div>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <input
-                id="remember"
-                v-model="form.remember"
-                type="checkbox"
-                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label for="remember" class="ml-2 block text-sm text-gray-700">
-                Se souvenir de moi
-              </label>
-            </div>
-
-            <a href="#" class="text-sm text-primary-600 hover:text-primary-700">
-              Mot de passe oublié ?
-            </a>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <input
+              id="remember"
+              v-model="form.remember"
+              type="checkbox"
+              style="width:16px;height:16px;accent-color:#000091;cursor:pointer;"
+            />
+            <label for="remember" style="font-size:.875rem;color:#4A4A4A;cursor:pointer;">Se souvenir de moi</label>
           </div>
 
           <button
             type="submit"
             :disabled="loading"
-            class="w-full btn-primary"
+            style="width:100%;margin-top:.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:#000091;color:#fff;border:none;border-radius:4px;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .2s;"
+            @mouseover="e=>{ if(!loading) e.currentTarget.style.background='#1212FF'; }"
+            @mouseleave="e=>e.currentTarget.style.background='#000091'"
           >
-            <span v-if="loading" class="flex items-center justify-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Connexion...
+            <span v-if="loading" style="display:flex;align-items:center;gap:.5rem;">
+              <div class="fr-spinner" style="width:1rem;height:1rem;border-width:2px;"></div>
+              Connexion…
             </span>
             <span v-else>Se connecter</span>
           </button>
         </form>
 
-        <!-- Lien inscription -->
-        <div class="mt-6 text-center">
-          <p class="text-sm text-gray-600">
-            Pas encore de compte ?
-            <RouterLink to="/register" class="text-primary-600 hover:text-primary-700 font-semibold">
-              S'inscrire
-            </RouterLink>
-          </p>
-        </div>
       </div>
+
+      <!-- Lien inscription -->
+      <p style="text-align:center;margin-top:1.25rem;font-size:.85rem;color:#666666;">
+        Pas encore de compte ?
+        <RouterLink to="/register" style="color:#000091;text-decoration:none;font-weight:600;">S'inscrire</RouterLink>
+      </p>
+
     </div>
   </div>
 </template>
@@ -102,11 +88,11 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 
 const router = useRouter()
-const route = useRoute()
+const route  = useRoute()
 const authStore = useAuthStore()
 
 const loading = ref(false)
-const error = ref(null)
+const error   = ref(null)
 
 const form = reactive({
   email: '',
@@ -116,17 +102,10 @@ const form = reactive({
 
 const handleLogin = async () => {
   loading.value = true
-  error.value = null
-
+  error.value   = null
   try {
-    await authStore.login({
-      email: form.email,
-      mot_de_passe: form.mot_de_passe
-    })
-
-    // Redirection vers la page d'origine ou vers l'accueil
-    const redirectTo = route.query.redirect || '/'
-    router.push(redirectTo)
+    await authStore.login({ email: form.email, mot_de_passe: form.mot_de_passe })
+    router.push(route.query.redirect || '/')
   } catch (err) {
     error.value = err.response?.data?.message || 'Email ou mot de passe incorrect'
   } finally {

@@ -10,7 +10,7 @@ const echo = new Echo({
   forceTLS: true,
   encrypted: true,
   // L'auth broadcasting est sur /broadcasting/auth, pas sous /api/v1/
-  authEndpoint: 'http://localhost:8000/broadcasting/auth',
+  authEndpoint: '/broadcasting/auth',
   auth: {
     headers: {
       // Clé correcte — authService stocke sous 'auth_token'

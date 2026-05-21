@@ -9,10 +9,11 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref(null)
 
   const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.role?.nom === 'Administrateur')
-  const isModerator = computed(() => 
-    user.value?.role?.nom === 'Modérateur' || isAdmin.value
+  const isSuperAdmin = computed(() => user.value?.role?.slug === 'super-admin')
+  const isAdmin = computed(() =>
+    user.value?.role?.slug === 'admin' || user.value?.role?.slug === 'super-admin'
   )
+  const isModerator = computed(() => isAdmin.value)
 
   async function login(credentials) {
     loading.value = true
@@ -85,6 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading,
     error,
     isAuthenticated,
+    isSuperAdmin,
     isAdmin,
     isModerator,
     login,

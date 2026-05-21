@@ -51,6 +51,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    allowedHosts: ['pleat-isolation-radiation.ngrok-free.dev'],
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
@@ -58,5 +59,12 @@ export default defineConfig({
         secure: false
       }
     }
+  },
+  preview: {
+    port: 4173,
+    allowedHosts: [
+      'localhost',
+      'pleat-isolation-radiation.ngrok-free.dev'
+    ]
   }
 })

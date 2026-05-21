@@ -1,144 +1,85 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full">
-      <div class="card">
-        <!-- Header -->
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <span class="text-white font-bold text-2xl">RR</span>
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900">Créer un compte</h2>
-          <p class="mt-2 text-gray-600">
-            Rejoignez notre communauté
-          </p>
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;background:#F5F5F5;">
+    <div style="width:100%;max-width:440px;">
+
+      <!-- Logo -->
+      <div style="text-align:center;margin-bottom:1.75rem;">
+        <div style="width:52px;height:52px;background:#000091;border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem;">
+          <span style="color:#fff;font-weight:800;font-size:1.1rem;">RE</span>
         </div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#161616;margin:0 0 .375rem;">Créer un compte</h1>
+        <p style="color:#666666;font-size:.85rem;margin:0;">Rejoignez la communauté (RE)SOURCES</p>
+      </div>
+
+      <!-- Card -->
+      <div style="background:#FFFFFF;border:1px solid #DDDDDD;border-radius:4px;padding:1.75rem;box-shadow:0 2px 8px rgba(0,0,0,.06);">
 
         <!-- Erreur -->
-        <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-red-800 text-sm">{{ error }}</p>
+        <div v-if="error" style="background:#FFE9E9;border:1px solid #E1000F;border-left-width:4px;border-radius:3px;padding:.75rem 1rem;margin-bottom:1.25rem;">
+          <p style="margin:0;color:#C9191E;font-size:.8rem;">{{ error }}</p>
         </div>
 
-        <!-- Formulaire -->
-        <form @submit.prevent="handleRegister" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+        <form @submit.prevent="handleRegister" style="display:flex;flex-direction:column;gap:.875rem;">
+
+          <!-- Prénom / Nom -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
             <div>
-              <label for="prenom" class="block text-sm font-medium text-gray-700 mb-1">
-                Prénom *
-              </label>
-              <input
-                id="prenom"
-                v-model="form.prenom"
-                type="text"
-                required
-                class="input-field"
-                placeholder="Jean"
-              />
+              <label style="display:block;color:#161616;font-size:.875rem;font-weight:500;margin-bottom:.3rem;">Prénom *</label>
+              <input v-model="form.prenom" type="text" required class="input-dsfr" placeholder="Jean" />
             </div>
-
             <div>
-              <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">
-                Nom *
-              </label>
-              <input
-                id="nom"
-                v-model="form.nom"
-                type="text"
-                required
-                class="input-field"
-                placeholder="Dupont"
-              />
+              <label style="display:block;color:#161616;font-size:.875rem;font-weight:500;margin-bottom:.3rem;">Nom *</label>
+              <input v-model="form.nom" type="text" required class="input-dsfr" placeholder="Dupont" />
             </div>
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-              Email *
-            </label>
-            <input
-              id="email"
-              v-model="form.email"
-              type="email"
-              required
-              class="input-field"
-              placeholder="jean.dupont@example.com"
-            />
+            <label style="display:block;color:#161616;font-size:.875rem;font-weight:500;margin-bottom:.3rem;">Email *</label>
+            <input v-model="form.email" type="email" required class="input-dsfr" placeholder="jean.dupont@example.com" />
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-              Mot de passe *
-            </label>
-            <input
-              id="password"
-              v-model="form.mot_de_passe"
-              type="password"
-              required
-              minlength="8"
-              class="input-field"
-              placeholder="••••••••"
-            />
-            <p class="text-xs text-gray-500 mt-1">Minimum 8 caractères</p>
+            <label style="display:block;color:#161616;font-size:.875rem;font-weight:500;margin-bottom:.3rem;">Mot de passe *</label>
+            <input v-model="form.mot_de_passe" type="password" required minlength="8" class="input-dsfr" placeholder="••••••••" />
+            <p style="margin:.25rem 0 0;font-size:.75rem;color:#666666;">Minimum 8 caractères</p>
           </div>
 
           <div>
-            <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-1">
-              Confirmer le mot de passe *
-            </label>
-            <input
-              id="password_confirm"
-              v-model="form.password_confirm"
-              type="password"
-              required
-              minlength="8"
-              class="input-field"
-              placeholder="••••••••"
-            />
+            <label style="display:block;color:#161616;font-size:.875rem;font-weight:500;margin-bottom:.3rem;">Confirmer le mot de passe *</label>
+            <input v-model="form.password_confirm" type="password" required minlength="8" class="input-dsfr" placeholder="••••••••" />
           </div>
 
-          <div class="flex items-start">
-            <div class="flex items-center h-5">
-              <input
-                id="cgu"
-                v-model="form.cgu_accepte"
-                type="checkbox"
-                required
-                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-            </div>
-            <label for="cgu" class="ml-2 block text-sm text-gray-700">
-              J'accepte les 
-              <a href="#" class="text-primary-600 hover:text-primary-700">
-                conditions générales d'utilisation
-              </a>
+          <div style="display:flex;align-items:flex-start;gap:.5rem;">
+            <input id="cgu" v-model="form.cgu_accepte" type="checkbox" required style="width:16px;height:16px;accent-color:#000091;cursor:pointer;flex-shrink:0;margin-top:2px;" />
+            <label for="cgu" style="font-size:.875rem;color:#4A4A4A;cursor:pointer;line-height:1.5;">
+              J'accepte les
+              <a href="#" style="color:#000091;text-decoration:none;">conditions générales d'utilisation</a>
             </label>
           </div>
 
           <button
             type="submit"
             :disabled="loading || !form.cgu_accepte"
-            class="w-full btn-primary"
+            style="width:100%;margin-top:.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.5rem;background:#000091;color:#fff;border:none;border-radius:4px;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .2s;"
+            @mouseover="e=>{ if(!loading && form.cgu_accepte) e.currentTarget.style.background='#1212FF'; }"
+            @mouseleave="e=>e.currentTarget.style.background='#000091'"
           >
-            <span v-if="loading" class="flex items-center justify-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Création du compte...
+            <span v-if="loading" style="display:flex;align-items:center;gap:.5rem;">
+              <div class="fr-spinner" style="width:1rem;height:1rem;border-width:2px;"></div>
+              Création…
             </span>
             <span v-else>Créer mon compte</span>
           </button>
         </form>
 
-        <!-- Lien connexion -->
-        <div class="mt-6 text-center">
-          <p class="text-sm text-gray-600">
-            Vous avez déjà un compte ?
-            <RouterLink to="/login" class="text-primary-600 hover:text-primary-700 font-semibold">
-              Se connecter
-            </RouterLink>
-          </p>
-        </div>
       </div>
+
+      <!-- Lien connexion -->
+      <p style="text-align:center;margin-top:1.25rem;font-size:.85rem;color:#666666;">
+        Déjà un compte ?
+        <RouterLink to="/login" style="color:#000091;text-decoration:none;font-weight:600;">Se connecter</RouterLink>
+      </p>
+
     </div>
   </div>
 </template>
@@ -152,45 +93,32 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(false)
-const error = ref(null)
+const error   = ref(null)
 
 const form = reactive({
-  prenom: '',
-  nom: '',
-  email: '',
-  mot_de_passe: '',
-  password_confirm: '',
+  prenom: '', nom: '', email: '',
+  mot_de_passe: '', password_confirm: '',
   cgu_accepte: false
 })
 
 const handleRegister = async () => {
-  // Vérifier que les mots de passe correspondent
   if (form.mot_de_passe !== form.password_confirm) {
     error.value = 'Les mots de passe ne correspondent pas'
     return
   }
-
   loading.value = true
-  error.value = null
-
+  error.value   = null
   try {
     await authStore.register({
-      prenom: form.prenom,
-      nom: form.nom,
-      email: form.email,
-      mot_de_passe: form.mot_de_passe,
-      cgu_accepte: form.cgu_accepte,
-      role_id: 3 // Membre par défaut
+      prenom: form.prenom, nom: form.nom, email: form.email,
+      mot_de_passe: form.mot_de_passe, cgu_accepte: form.cgu_accepte, role_id: 3
     })
-
     router.push('/')
   } catch (err) {
     if (err.response?.data?.errors) {
-      // Erreurs de validation Laravel
-      const errors = err.response.data.errors
-      error.value = Object.values(errors).flat().join(', ')
+      error.value = Object.values(err.response.data.errors).flat().join(', ')
     } else {
-      error.value = err.response?.data?.message || 'Une erreur est survenue lors de l\'inscription'
+      error.value = err.response?.data?.message || 'Une erreur est survenue'
     }
   } finally {
     loading.value = false
